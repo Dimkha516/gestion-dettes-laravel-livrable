@@ -1,0 +1,79 @@
+--- CHANGEMENT api par wane                           ==================: OK
+
+--- TEST ACCES ROUTE PAR AUTHENTIFICATION             ==================: OK
+
+--- FILTRES ALL CLIENT:
+    -- UN OU PLUSIEURS TÉLÉPHONES                     ==================: OK
+    -- SURNOM: A-Z et Z-A                             ==================: 
+    -- CLIENT AVEC COMPTE => INCLUDE                  ==================: 
+
+--- GET CLIENT(ID):
+    -- CLIENT AVEC COMPTE => INCLUDE                  ==================:
+
+--- POST CLIENT:
+    -- SI OBJET USER VIDE => CREATION SANS COMPTE     ==================:
+    -- SI OBJET USER NON VIDE => CREATION AVEC COMPTE ==================:
+
+    "pseudo": "mido",
+    "email": "mido@gmail.com",
+    "password": "Success@123"
+
+user vers client: has
+client: belongsto
+
+
+
+Maintenant toujours avec l'api je veux effectuer un trie basé sur les pseudo des users. on aura deux trie de a à z et de z à a.
+le type de trie dépendra du parametres. si params = pseud alors trie croissant. si params = -pseudo alors trie décroissant.
+use Illuminate\Http\Request;
+use Illuminate\Support\LazyCollection;
+
+public function findUsersByPhonesAndSort(Request $request)
+{
+    // Récupérer les numéros de téléphone à partir des paramètres de requête
+    $phones = $request->query('phones');
+
+    // Vérifier si le paramètre de téléphone est présent
+    if (!$phones) {
+        return response()->json(['message' => 'Le paramètre de téléphones est manquant'], 400);
+    }
+
+    // Convertir la chaîne de numéros de téléphone en un tableau
+    $phoneArray = explode(',', $phones);
+
+    // Récupérer le paramètre de tri
+    $sortParam = $request->query('params', 'pseudo'); // Par défaut, tri croissant par pseudo
+
+    // Utiliser une Lazy Collection pour charger les utilisateurs correspondants
+    $users = LazyCollection::make(function () use ($phoneArray) {
+        foreach ($phoneArray as $phone) {
+            $phone = trim($phone); // Supprimer les espaces autour du numéro de téléphone
+            $matchingUsers = User::where('telephone', 'LIKE', "%{$phone}%")->get();
+
+            foreach ($matchingUsers as $user) {
+                yield $user;
+            }
+        }
+    });
+
+    // Trier les utilisateurs en fonction du paramètre `params`
+    if ($sortParam === 'pseudo') {
+        $users = $users->sortBy('pseudo'); // Tri croissant par pseudo (A-Z)
+    } elseif ($sortParam === '-pseudo') {
+        $users = $users->sortByDesc('pseudo'); // Tri décroissant par pseudo (Z-A)
+    }
+
+    // Convertir la Lazy Collection triée en tableau et retourner en JSON
+    return response()->json($users->values()->all(), 200);
+}
+
+
+------------CONTROLLERS: AJOUTER LES VÉRIFICATIONS AVANT LA RESPONSE DE SUCCES:
+
+
+
+http://localhost:3000/swagger/index.html
+
+Salut! On continu. Nous allons maintenant gérér l'AUTHENTIFICATION
+sur swagger. Par exemple nous avons notre endpoint: Route::middleware('auth:api')->get('/', [UserController::class, 'getUsers'])->name('users.idenx');
+Qui nécessite de se connecter d'abord pour s'éxécuter, Je veux qu'on puisse s'authentifier sur swagger pour utiliser le token généré afin de pouvoir faire cela.

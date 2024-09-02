@@ -1,0 +1,429 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API de gestion de dettes",
+        "version": "1.0.0",
+        "description": "API pour gérer les dettes des clients dans un magasin"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000",
+            "description": "Serveur Local"
+        }
+    ],
+    "paths": {
+        "/wane/v1/clients": {
+            "get": {
+                "tags": ["Clients"],
+                "summary": "Lister tous les clients",
+                "description": "Recupére la liste de tous les clients enregistrés",
+                "operationId": "getClients",
+                "responses": {
+                    "200": {
+                        "description": "Liste des clients récupérée avec succès",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Non autorisé",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+
+        "/wane/v1/clients/{id}": {
+            "get": {
+                "summary": "Récupère un client par ID",
+                "description": "Renvoie les détails d'un client spécifique par son ID.",
+                "tags": ["Clients"],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "description": "L'ID de l'utilisateur à récupérer."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails Client.",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Utilisateur non trouvé."
+                    }
+                }
+            }
+        },
+        "/wane/v1/clients/account/filter": {
+            "get": {
+                "summary": "Filtrer par clients avec|sans compte",
+                "description": "Renvoie les clients filtrés par le paramètre 'compte'.",
+                "tags": ["Clients"],
+                "parameters": [
+                    {
+                        "name": "compte",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Les client à filtrer avec ou sans compte ('non' ou 'oui)."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des comptes filtrés.",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "400": {
+                        "description": "Paramètre de requête manquant ou invalide. saisir 'oui' ou 'non"
+                    }
+                }
+            }
+        },
+        "/wane/v1/clients/status/filter": {
+            "get": {
+                "summary": "Filtrer les clients par status (bloque, actif)",
+                "description": "Renvoie les clients filtrés par le paramètre 'status'.",
+                "tags": ["Clients"],
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Les client filtrer par status (actif ou bloque)."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des clients filtrés.",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "400": {
+                        "description": "Paramètre de requête manquant ou invalide. saisir 'actif' ou 'bloque"
+                    }
+                }
+            }
+        },
+        "/wane/v1/clients/": {
+            "post": {
+                "summary": "Ajouter un nouveau client",
+                "description": "Créer un nouveau client avec les informations fournies",
+                "tags": ["Clients"],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "surname": {
+                                        "type": "string"
+                                    },
+                                    "telephone": {
+                                        "type": "string"
+                                    },
+                                    "adresse": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": ["surname", "telephone", "adresse"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Client Crée avec succès."
+                    },
+                    "400": {
+                        "description": "Erreur ajout client"
+                    }
+                }
+            }
+        },
+        "/wane/v1/articles/": {
+            "get": {
+                "tags": ["Articles"],
+                "summary": "Lister tous les articles",
+                "description": "Recupére la liste de tous les articles enregistrés",
+                "operationId": "getArticles",
+                "responses": {
+                    "200": {
+                        "description": "Liste des clients récupérée avec succès",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Non autorisé",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/wane/v1/articles/{id}": {
+            "get": {
+                "summary": "Récupère un article par ID",
+                "description": "Renvoie les détails d'un article spécifique par son ID.",
+                "tags": ["Articles"],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "description": "L'ID de article à récupérer."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails Article.",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Article non trouvé."
+                    }
+                }
+            }
+        },
+        "/wane/v1/articles/search/libelle": {
+            "get": {
+                "summary": "Rechercher un article par son libellé",
+                "description": "Renvoie l'article recherché",
+                "tags": ["Articles"],
+                "parameters": [
+                    {
+                        "name": "libelle",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "L'article trouvé"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "L'article avec le libellé saisi",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "400": {
+                        "description": "Paramètre de requête manquant ou invalide. saisir un libellé article valide"
+                    }
+                }
+            }
+        },
+        "/wane/v1/articles/search/dispo": {
+            "get": {
+                "summary": "Filtrer les articles par disponibilité QTÉ",
+                "description": "Renvoie les articles",
+                "tags": ["Articles"],
+                "parameters": [
+                    {
+                        "name": "disponible",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Les articles concernés"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Les articles avec le paramètre saisi",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "400": {
+                        "description": "Paramètre de requête manquant ou invalide. saisir 'oui' ou  'non' "
+                    }
+                }
+            }
+        },
+        "/wane/v1/users/": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Lister tous les utilisateurs",
+                "description": "Recupére la liste de tous les utilisateurs enregistrés",
+                "operationId": "getUsers",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des ustilisateurs récupérée avec succès",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Non autorisé",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/wane/v1/users/role/filter": {
+            "get": {
+                "summary": "Filtrer les utilisateurs par role",
+                "description": "Renvoie les utlisateurs avec le rôle entré",
+                "tags": ["Users"],
+                "parameters": [
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Les utilisateurs avec le rôle entré"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des utilisateurs avec le role donné",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "400": {
+                        "description": "Paramètre de requête manquant ou invalide. saisir 'client' ou  'admin' ou 'boutiquier' "
+                    }
+                }
+            }
+        },
+        "/wane/v1/users/login": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "Login user and get authentication token",
+                "operationId": "loginUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123!"
+                                    }
+                                },
+                                "required": ["email", "password"]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful login",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Invalid email or password."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Missing parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Email and password are required."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "security": [
+        {
+            "BearerAuth": []
+        }
+    ]
+}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Support\Facades\Auth;
 // use Auth;
 use Hash;
@@ -13,16 +14,18 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
     // Ajouter un nouvel utilisateur:
     public function store(StoreUserRequest $request)
     {
-        // Validation réussie, créer un nouvel utilisateur
-        $user = User::create([
-            'pseudo' => $request->pseudo,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-        ]);
+        $data = $request->validated();
+
+        $user = $this->userService->createUser($data);
 
         return response()->json([
             'success' => true,
@@ -31,47 +34,41 @@ class UserController extends Controller
         ], 201); // 201 Created
     }
 
-    public function getUsers() {
-        $user = Auth::user();
-        if (!$user) {
-            return response()->json([
-                'message' => "Connectez vous d'abord."
-            ], 403);
-        }
-
-        $users = User::all();
+    public function getUsers()
+    {
+        $users = $this->userService->getUsers();
         if ($users->isEmpty()) {
             return response()->json([
                 'message' => 'Aucun utilisateur trouvé dans la base de données'
             ], 404);
         }
+
         return response()->json([
             'message' => 'Liste des utilisateurs',
             'data' => $users
         ], 200);
     }
 
-    
 
     // AFFICHER LES UTILISATEURS PAR ROLE:
     public function filterByRole(Request $request)
     {
         $role = $request->query('role');
 
-        if ($role === 'client' || $role === 'admin' || $role === 'boutiquier') {
-            $users = User::where('role', $role)->get();
-        } else {
+        // Appel du service pour obtenir les utilisateurs par rôle
+        $users = $this->userService->getUsersByRole($role);
+
+        if ($users === null) {
             return response()->json([
                 'success' => false,
-                'message' => 'Paramètre status invalide. Utilisez "client" ou "admin" ou "boutiquier".',
+                'message' => 'Paramètre role invalide. Utilisez "client" ou "admin" ou "boutiquier".',
             ], 400); // 400 Bad Request
         }
 
         return response()->json([
-            'sucess' => true,
-            'message' => "liste des article avec le role : ",
-            $role,
-            'data' => $users
+            'success' => true,
+            'message' => "Liste des utilisateurs avec le rôle : $role",
+            'data' => $users,
         ], 200);
     }
 
@@ -107,22 +104,16 @@ class UserController extends Controller
 
     public function deleteUser($id)
     {
-        try {
-            // Rechercher l'utilisateur par ID
-            $user = User::findOrFail($id);
-
-            // Supprimer l'utilisateur
-            $user->delete();
-
-            // Réponse JSON en cas de succès
+        $result = $this->userService->deleteUserById($id);
+ 
+        if ($result['success']) {
             return response()->json([
-                'message' => 'Utilisateur supprimé avec succès.',
+                'message' => $result['message'],
             ], 200);
-        } catch (\Exception $e) {
-            // Réponse JSON en cas d'erreur
+        } else {
             return response()->json([
-                'message' => 'Une erreur s\'est produite lors de la suppression de l\'utilisateur.',
-                'error' => $e->getMessage(),
+                'message' => $result['message'],
+                'error' => $result['error'],
             ], 500);
         }
     }

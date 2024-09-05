@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginRequest;
 use App\Models\Client;
 use App\Models\User;
+use App\Services\AuthService;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,31 +16,24 @@ class AuthController extends Controller
     /**
      * Authentifier l'utilisateur et retourner un token d'accès.
      */
-    public function login(Request $request)
+
+     protected $authService;
+
+     public function __construct(AuthService $authService)
     {
-        // Valider les données d'entrée
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string|min:5',
-        ]);
+        $this->authService = $authService;
+    }
 
-        // Vérifier les informations d'identification
-        if (!Auth::attempt($credentials)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email ou mot de passe incorrect.',
-            ], 401);
-        }
-
-        // Authentification réussie
-        $user = Auth::user();
-        $token = $user->createToken('LaravelAuthApp')->accessToken;
+    public function login(LoginRequest $request)
+    {
+        $credentials = $request->only('email', 'password');
+        $result = $this->authService->authenticate($credentials);
 
         return response()->json([
-            'success' => true,
-            'message' => 'Authentification réussie.',
-            'token' => $token,
-        ], 200);
+            'success' => $result['success'],
+            'message' => $result['message'],
+            'token' => $result['token'] ?? null,
+        ], $result['status']);
     }
 
     // CRÉER UN COMPTE POUR UN CLIENT APRES CONNEXION ADMIN|BOUTIQUIER:
@@ -111,15 +106,11 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $user = Auth::user();
-
-        $user->tokens->each(function ($token) {
-            $token->delete();
-        });
+        $result = $this->authService->logout();
 
         return response()->json([
-            'message' => 'Déconnexion réussie.'
-        ], 200);
-
+            'success' => $result['success'],
+            'message' => $result['message'],
+        ], $result['status']);
     }
 }

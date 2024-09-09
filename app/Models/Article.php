@@ -26,4 +26,12 @@ class Article extends Model
 
     protected $dates = ['deleted_at'];  
 
+     // Relation avec les dettes via la table pivot
+     public function dettes()
+     {
+         return $this->belongsToMany(Dette::class, 'article_dette')
+             ->withPivot('qte_vente', 'prix_vente')
+             ->withTimestamps();
+     }
+
 }

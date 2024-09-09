@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\DetteController;
+use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\UserController;
 use App\Mail\ClientFidelityCardMail;
 use App\Models\Client;
@@ -95,7 +97,7 @@ Route::prefix('v1')->group(function () {
 
         Route::delete('/{id}', [UserController::class, 'deleteUser'])
             ->name('user.delete');
-        
+
         // CRÉER UN COMPTE POUR UN CLIENT APRES CONNEXION ADMIN|BOUTIQUIER:
         Route::middleware('auth:api')->post('/clientAccount/{id}', [AuthController::class, 'createAccount'])->name('createClient.account');
     });
@@ -157,5 +159,42 @@ Route::prefix('v1')->group(function () {
         Route::delete('/delete/{id}', [ArticleController::class, 'destroy'])->name('articles.destroy');
     });
 
+    // -------------- DETTES:
+    Route::prefix('dettes')->group(function () {
+        
+        // LISTER TOUTES LES DETTES:
+        Route::get('/', [DetteController::class, 'index'])->name('dettes-list');
+
+        // FILTRER DETTES PAR STATUS(SOLDÉ / NON SOLDÉ):
+         Route::get('/solde', [DetteController::class, 'filterDettes'])->name('dette-solde');
+        
+          // LISTER LES PAIEMENTS D'UNE DETTE:
+        Route::get('/paymentsList/{id}', [DetteController::class, 'getPaiementsByDette'])->name('dettte-payments');
+
+        // LISTER LES ARTICLES D'UNE DETTE:
+        Route::get('/{id}/articles', [DetteController::class, 'getArticles'])->name('dette-articles');
+
+        // AJOUTER NOUVELLE DETTE:
+        Route::post('/', [DetteController::class, 'store'])->name('add-dette');
+
+        // LISTER UNE DETTE PAR SON ID:
+
+        
+        // LISTER LES PAIEMENTS D'UNE DETTE:
+
+
+    });
+
+    // -------------- PAIEMENTS:
+    Route::prefix('paiements')->group(function () {
+         
+        // LISTER TOUS LES PAIEMENTS:
+        Route::get("/", [PaiementController::class, 'index'])->name('payments-liste');
+
+        // AJOUTER UN PAEIMENT À UNE DETTE:
+        Route::post("/", [PaiementController::class, 'store'])->name('add-payment');
+
+
+    });
 
 });

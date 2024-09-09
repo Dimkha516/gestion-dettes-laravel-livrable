@@ -48,7 +48,11 @@ class User extends Authenticatable
     protected $guarded = [];
 
     public function client(){
-        return $this->hasOne(Client::class);
+        // AVANT MODIF:
+        // return $this->hasOne(Client::class);
+
+        // APRES MODIF:
+        return $this->hasOne(Client::class, 'user_id');
     }
 
     public static function boot()

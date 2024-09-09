@@ -1,13 +1,21 @@
 <?php
 namespace App\Services;
 
+// use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
+use App\Events\ClientCreatedEvent;
+use App\Jobs\GenerateFidelityCard;
+use App\Jobs\ProcessClientCreation;
+use App\Jobs\UploadPhoto;
+use App\Jobs\UploadPhotoToCloudinary;
+use App\Repositories\ClientRepository;
+use Cloudinary\Cloudinary;
+use DB;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Encoding\Encoding;
 use App\Models\Client;
 use App\Models\User;
-use Cloudinary\Cloudinary;
 use Barryvdh\DomPDF\Facade as PDF;
 use App\Mail\ClientFidelityCardMail;
 use Illuminate\Support\Facades\Mail;
@@ -18,28 +26,19 @@ use Illuminate\Support\Facades\Storage;
 
 class ClientService
 {
+    protected $clientRepo;
     protected $cloudinary;
-    public function __construct()
+    public function __construct(ClientRepository $clientRepo, Cloudinary $cloudinary)
     {
-        // dd([
-        //     'cloud_name' => config('filesystems.disks.cloudinary.cloud_name'),
-        //     'api_key' => config('filesystems.disks.cloudinary.api_key'),
-        //     'api_secret' => config('filesystems.disks.cloudinary.api_secret')
-        // ]);
-
-        // $this->cloudinary = new Cloudinary([
-        //     'cloud_name' => config('filesystems.disks.cloudinary.cloud_name'),
-        //     'api_key' => config('filesystems.disks.cloudinary.api_key'),
-        //     'api_secret' => config('filesystems.disks.cloudinary.api_secret')
-        // ]);
-        $this->cloudinary = new Cloudinary([
-            'cloud_name' => 'dytchfsin',
-            'api_key' => '247799294424117',
-            'api_secret' => 'd8xcCTIP_coa_JxUOeTQt0Ik2vs'
-        ]);
-
+        $this->clientRepo = $clientRepo;
+        $this->cloudinary = $cloudinary;
     }
 
+    // dd([
+    //     'cloud_name' => config('filesystems.disks.cloudinary.cloud_name'),
+    //     'api_key' => config('filesystems.disks.cloudinary.api_key'),
+    //     'api_secret' => config('filesystems.disks.cloudinary.api_secret')
+    // ]);
     public function getAllClients()
     {
         $clients = Client::all();
@@ -72,95 +71,49 @@ class ClientService
         ]);
     }
 
-    public function createClientWithAccount(array $clientData, array $userData, $photo = null)
+
+    public function createClientWithAccount(array $clientData, array $userData, $photo)
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
 
         try {
-            // Gérer l'upload de la photo si elle est fournie
             if ($photo) {
-                $uploadResult = $this->cloudinary->uploadApi()->upload($photo->getRealPath(), [
-                    'folder' => 'clients_photos',
-                    'public_id' => $clientData['surname'] . '_' . time(),
-                    'resource_type' => 'image'
-                ]);
-
-                // Ajouter l'URL de la photo au clientData
-                $clientData['photo'] = $uploadResult['secure_url'];
+                $tempPath = $photo->store('temp');
+                UploadPhotoToCloudinary::dispatch($tempPath, $clientData);
             } else {
-                // Si aucune photo n'est fournie, utiliser une photo par défaut
                 $clientData['photo'] = 'https://res.cloudinary.com/dytchfsin/image/upload/v1725465088/xcb8pgm42qc6vkzgwnvd.png';
             }
-
-            // Créer le client
-            $client = Client::create([
-                'surname' => $clientData['surname'],
-                'telephone' => $clientData['telephone'],
-                'adresse' => $clientData['adresse'] ?? null,
-                'photo' => $clientData['photo'],
-                // 'photo' => 'https://res.cloudinary.com/dytchfsin/image/upload/v1725465088/xcb8pgm42qc6vkzgwnvd.png',
-                'status' => 'actif',
-            ]);
-
-            // Créer l'utilisateur
-            $user = User::create([
+            // Créer le client et l'utilisateur:
+            $client = $this->clientRepo->createClient($clientData);
+            if (!$client) {
+                throw new \Exception('Failed to create client');
+            }
+            $user = $this->clientRepo->createUser([
                 'pseudo' => $userData['pseudo'],
                 'email' => $userData['email'],
                 'password' => Hash::make($userData['password']),
                 'role' => 'client',
             ]);
+            if (!$user) {
+                throw new \Exception('Failed to create user');
+            }
+            // Lier le client à l'utilisateur
+            $this->clientRepo->updateClientWithUser($client, $user->id);
 
-            // Associer l'utilisateur créé au client
-            $client->user_id = $user->id;
-            $client->save();
-            // $client->users->save();
-
-            // Générer le code QR pour le client
-            $qrContent = 'Client ID: ' . $client->id . ', Nom: ' . $client->surname;
-
-            // Utiliser le Builder pour générer le QR code
-            $qrCode = Builder::create()
-                ->writer(new PngWriter())
-                ->data($qrContent)
-                ->encoding(new Encoding('UTF-8'))
-                ->size(300)
-                ->build();
-
-            // Chemin pour enregistrer le QR code
-            $qrPath = 'qrcodes/clients/' . $client->surname . '_' . $client->id . '.png';
-            Storage::disk('local')->put($qrPath, $qrCode->getString());
-
-            // Générer la carte de fidélité en PDF
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('fidelite_card', [
-                'pseudo' => $user->pseudo,
-                'email' => $user->email,
-                'qrCodePath' => $qrPath,
-                'photoUrl' => $clientData['photo']
-            ]);
-
-            // Sauvegarder le PDF dans un dossier
-            $pdfPath = 'fidelite_cards' . $client->surname . '_' . $client->id . '.pdf';
-            Storage::disk('local')->put($pdfPath, $pdf->output());
-
-            Mail::to($user->email)->send(new ClientFidelityCardMail($client, $user, $pdfPath));
-
-            \DB::commit();
+            DB::commit();
 
             return [
                 'client' => $client,
                 'user' => $user,
-                'qr_code_path' => $qrPath,
-                'fidelite_card_path' => $pdfPath
             ];
-        } catch (\Exception $e) {
-            \DB::rollBack();
+        }
+        // 
+        catch (\Exception $e) {
+            DB::rollBack();
             throw $e;
         }
 
-
     }
-
-
     public function updateClient($id, $data)
     {
         $client = Client::findOrFail($id);

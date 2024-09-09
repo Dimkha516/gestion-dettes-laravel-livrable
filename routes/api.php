@@ -3,6 +3,8 @@
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\UserController;
+use App\Mail\ClientFidelityCardMail;
+use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -131,6 +133,7 @@ Route::prefix('v1')->group(function () {
         // Route pour ajouter un nouveau client avec compte
         Route::post('/client/user', [ClientController::class, 'storeWithAccount'])->name('clientUser.store');
 
+        Route::post('/mailTest', [ClientController::class, 'testSendMail']);
 
     });
 

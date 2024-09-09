@@ -60,3 +60,200 @@ AJOUT COACH:
 
 validaations dossier request:
 middleware qui gère les responses:
+
+
+Le upload de la photo doit être géré par une fonction apart.
+job et listener pour gérer l'asynchrone.
+Un endpoint qui sort les clients sans images(c'est à dire qui ont leur images en local).
+Ensuite créer un job qui fait une relance. Cette relance sera ratachée à une commande.
+
+
+----------------------------- VERSION SANS EVENTS;LISTENER;JOBS;OBSERVER:
+    
+    ---------------CLIENT CONTROLLER:
+     public function storeWithAccount(StoreClientRequest $clientRequest, StoreUserRequest $userRequest): JsonResponse
+    {
+        try {
+            // Valider les données du client et de l'utilisateur
+            $validatedClientData = $clientRequest->validate([
+                'surname' => 'required|string|max:255',
+                'telephone' => 'required|string|max:20',
+                'adresse' => 'nullable|string|max:255',
+                'photo' => 'nullable|file|mimes:jpeg,png,svg|max:40960', // 40 KB
+            ]);  
+
+            $validatedUserData = $userRequest->validate([
+                'pseudo' => 'required|string|max:255',
+                'email' => 'required|email|max:255|unique:users,email',
+                'password' => 'required|string|min:8|confirmed',
+            ]);
+
+            $photo = $clientRequest->file('photo'); // Récupérer la photo du formulaire
+            
+            // // Passer les données validées et le fichier photo au service:
+            // $result = $this->clientService->createClientWithAccount(
+            //     $clientRequest->$validatedClientData,
+            //     $userRequest->$validatedUserData,
+            //     $photo
+            // );
+            // Passer les données validées et le fichier photo au service:
+            $result = $this->clientService->createClientWithAccount(
+                $clientRequest->validated(),
+                $userRequest->validated(),
+                $photo
+            );
+           
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Client et compte utilisateur enregistrés avec succès',
+                'data' => $result
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'enregistrement du client et de l\'utilisateur',
+                'error' => $e->getMessage()
+            ], 500); // 500 Internal Server Error
+        }
+
+    }
+    ---------------CLIENT SERVICE:
+    public function createClientWithAccount(array $clientData, array $userData, $photo)
+    {
+        // $testUpload = Cloudinary::upload('path_to_a_test_image.jpg');
+        // dd($testUpload->getSecurePath());
+        \DB::beginTransaction();
+
+        try {
+
+            // Gérer l'upload de la photo si elle est fournie:
+            if (request()->hasFile('photo')) {
+                $photo = request()->file('photo');
+                
+                $uploadResult = $this->cloudinary->uploadApi()->upload($photo->getRealPath(), [
+                    'folder' => 'clients_photos',
+                    'public_id' => $clientData['surname'] . '_' . time(),
+                    'resource_type' => 'image'
+                ]);
+                $clientData['photo'] = $uploadResult['secure_url'];
+            } 
+            else {
+                $clientData['photo'] = 'https://res.cloudinary.com/dytchfsin/image/upload/v1725465088/xcb8pgm42qc6vkzgwnvd.png';
+            }
+
+            // Débogage des données avant insertion
+            // dd($clientData, $userData);
+
+            // Créer le client et l'utilisateur:
+            $client = $this->clientRepo->createClient($clientData);
+            $user = $this->clientRepo->createUser([
+                'pseudo' => $userData['pseudo'],
+                'email' => $userData['email'],
+                'password' => Hash::make($userData['password']),
+                'role' => 'client',
+                // 'photo' => $userData['photo']
+            ]);
+
+            // Lier le client à l'utilisateur
+            $this->clientRepo->updateClientWithUser($client, $user->id);
+
+
+            // Générer le code QR pour le client
+            $qrContent = 'Client ID: ' . $client->id . ', Nom: ' . $client->surname;
+
+            // Utiliser le Builder pour générer le QR code
+            $qrCode = Builder::create()
+                ->writer(new PngWriter())
+                ->data($qrContent)
+                ->encoding(new Encoding('UTF-8'))
+                ->size(300)
+                ->build();
+
+            // Chemin pour enregistrer le QR code
+            $qrPath = 'qrcodes/clients/' . $client->surname . '_' . $client->id . '.png';
+            Storage::disk('local')->put($qrPath, $qrCode->getString());
+
+            // Générer la carte de fidélité en PDF
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('fidelite_card', [
+                'pseudo' => $user->pseudo,
+                'email' => $user->email,
+                'qrCodePath' => $qrPath,
+                'photoUrl' => $clientData['photo']
+            ]);
+
+            // Sauvegarder le PDF dans un dossier
+            $pdfPath = 'fidelite_cards' . $client->surname . '_' . $client->id . '.pdf';
+            Storage::disk('local')->put($pdfPath, $pdf->output());
+
+            // Mail::to($user->email)->send(new ClientFidelityCardMail($client, $user, $pdfPath));
+
+            \DB::commit();
+
+            return [
+                'client' => $client,
+                'user' => $user,
+                'qr_code_path' => $qrPath,
+                'fidelite_card_path' => $pdfPath
+            ];
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            throw $e;
+        }
+    }
+
+    ---------------CLIENT REPOSITORY:
+    class ClientRepository
+{
+    public function createClient(array $clientData)
+    {
+        return Client::create($clientData);
+    }
+
+    public function createUser(array $userData)
+    {
+        return User::create($userData);
+    }
+
+    public function updateClientWithUser(Client $client, int $userId)
+    {
+        $client->user_id = $userId;
+        $client->save();
+    }
+}
+
+
+1: Créer des événements et des écouteurs :
+    --- Un événement pour signaler la création d'un client et d'un utilisateur.
+
+    --- Un écouteur pour gérer l'envoi de l'email avec le PDF et le QR code.
+
+2: Créer des jobs :
+
+ --- Un job pour gérer l'upload de la photo sur Cloudinary.
+ --- Un job pour générer le QR code.
+ --- Un job pour générer le PDF.
+ --- Un job pour envoyer l'email.
+
+3: Utiliser des observateurs :
+
+--- Un observateur pour déclencher les jobs après la création du client et de l'utilisateur.
+
+
+    ---------- LES EVENEMENTS:
+*** ClientCreated
+
+
+     ---- LISTENER:
+*** SendClientFidelityCardMail 
+
+    ---- JOBS:
+*** UploadPhotoToCloudinary
+*** GenerateQRCode
+*** GeneratePDF
+
+    ---- OBSERVERS:
+*** ClientObserver
+
+    ---- AppServiceProvider
+*** Enregistrer l'observateur

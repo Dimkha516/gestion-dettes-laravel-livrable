@@ -26,7 +26,11 @@ class Client extends Model
     ];
 
     public function user()
-{
-    return $this->belongsTo(User::class);
+{   
+    // AVANT MODIF
+    // return $this->belongsTo(User::class);
+
+    // APRES MODIF
+    return $this->belongsTo(User::class, 'user_id');
 }
 }

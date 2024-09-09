@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
+use App\Mail\ClientFidelityCardMail;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Models\Client;
 use App\Models\User;
-// use Hash;
 use App\Services\ClientService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\LazyCollection;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+
+
 
 
 class ClientController extends Controller
@@ -61,6 +64,43 @@ class ClientController extends Controller
     }
 
 
+    public function testSendMail(): JsonResponse
+    {
+        try {
+            // Remplacez par un client existant
+            $client = Client::find(1);
+            if (!$client) {
+                throw new \Exception('Client not found');
+            }
+
+            // Remplacez par un utilisateur existant
+            // $user = $client->user;
+            $user = User::find(122);
+            if (!$user) {
+                throw new \Exception('User not found');
+            }
+            // Remplacez par un chemin de fichier PDF existant
+            $pdfPath = 'fidelite_cards/Pol_123.pdf';
+            if (!Storage::disk('local')->exists($pdfPath)) {
+                throw new \Exception('PDF file not found');
+            }
+
+            // Envoyer l'email
+            Mail::to($user->email)->send(new ClientFidelityCardMail($client, $user, $pdfPath));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Mail sent successfully',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send mail',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function storeWithAccount(StoreClientRequest $clientRequest, StoreUserRequest $userRequest): JsonResponse
     {
         try {
@@ -78,12 +118,21 @@ class ClientController extends Controller
                 'password' => 'required|string|min:8|confirmed',
             ]);
 
-            // Passer les données validées et le fichier photo au service
+            $photo = $clientRequest->file('photo'); // Récupérer la photo du formulaire
+
+            // // Passer les données validées et le fichier photo au service:
+            // $result = $this->clientService->createClientWithAccount(
+            //     $clientRequest->$validatedClientData,
+            //     $userRequest->$validatedUserData,
+            //     $photo
+            // );
+            // Passer les données validées et le fichier photo au service:
             $result = $this->clientService->createClientWithAccount(
-                $validatedClientData,
-                $validatedUserData,
-                $clientRequest->file('photo') // Transmettre la photo ici
+                $clientRequest->validated(),
+                $userRequest->validated(),
+                $photo
             );
+
 
             return response()->json([
                 'success' => true,
@@ -97,8 +146,9 @@ class ClientController extends Controller
                 'error' => $e->getMessage()
             ], 500); // 500 Internal Server Error
         }
-
     }
+
+
 
     // AFFICHER UN CLIENT AVEC SON COMPTE UTILISATEUR:
     // Méthode pour afficher un client avec son compte utilisateur

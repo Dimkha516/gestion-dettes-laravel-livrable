@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('photo')->default('default.png')->nullable(false);
+            // $table->string('photo')->nullable(false);
+            $table->string('photo')->default('https://res.cloudinary.com/dytchfsin/image/upload/v1725465088/xcb8pgm42qc6vkzgwnvd.png')->nullable(false);
         });
     }
 

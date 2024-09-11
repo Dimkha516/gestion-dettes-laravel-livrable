@@ -3,6 +3,7 @@ namespace App\Services;
 
 use App\Models\Article;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ArticleService
 {
@@ -74,7 +75,17 @@ class ArticleService
                     'libelle' => $article->libelle,
                     'new_stock' => $article->qteStock
                 ];
-            } catch (\Exception $e) {
+            }
+            // 
+            catch (ModelNotFoundException $e) {
+                // Handle specific error for article not found
+                $results['errors'][] = [
+                    'id' => $item['id'],
+                    'message' => 'Article non trouvé'
+                ];
+            }
+            // 
+            catch (Exception $e) {
                 // Handle errors
                 $results['errors'][] = [
                     'id' => $item['id'],
@@ -86,22 +97,30 @@ class ArticleService
         return $results;
     }
 
-     // Search article by libelle
-     public function searchByLibelle($libelle)
-     {
-         return Article::where('libelle', $libelle)->first();
-     }
+    // Search article by libelle
+    public function searchByLibelle($libelle)
+    {
+        return Article::where('libelle', $libelle)->first();
+    }
 
-      // Filter articles by availability
+    // Filter articles by availability
     public function filterByAvailability($dispo)
     {
         if ($dispo === 'oui') {
-            return Article::where('qteStock', '>=', 1)->get();
+            return Article::available()->get();
         } elseif ($dispo === 'non') {
-            return Article::where('qteStock', '=', 0)->get();
+            return Article::notAvailable()->get();
         } else {
             throw new Exception('Paramètre "disponible" non valide. Utilisez "oui" ou "non".');
         }
+
+        // if ($dispo === 'oui') {
+        //     return Article::where('qteStock', '>=', 1)->get();
+        // } elseif ($dispo === 'non') {
+        //     return Article::where('qteStock', '=', 0)->get();
+        // } else {
+        //     throw new Exception('Paramètre "disponible" non valide. Utilisez "oui" ou "non".');
+        // }
     }
 
 }

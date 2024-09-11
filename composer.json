@@ -11,10 +11,12 @@
         "cloudinary/cloudinary_php": "^2.14",
         "endroid/qr-code": "^5.0",
         "guzzlehttp/guzzle": "^7.2",
+        "kreait/laravel-firebase": "^5.9",
         "laravel/framework": "^10.10",
         "laravel/passport": "^12.3",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "mongodb/laravel-mongodb": "^4.8",
         "zircote/swagger-php": "^4.10"
     },
     "require-dev": {

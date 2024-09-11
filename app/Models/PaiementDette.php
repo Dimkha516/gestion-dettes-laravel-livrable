@@ -11,6 +11,12 @@ class PaiementDette extends Model
 
     protected $fillable = ['dette_id', 'montant'];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
+
      // Ajoutez ceci si le nom de la table est différent du nom attendu par Laravel (paiement_dettes)
      protected $table = 'paiement_dette';
 

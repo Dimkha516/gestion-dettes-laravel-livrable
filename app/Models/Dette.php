@@ -10,6 +10,11 @@ class Dette extends Model
     use HasFactory;
 
     protected $fillable = ['client_id', 'montant', 'montant_paiement'];
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
 
     // Relation avec Client
     public function client()

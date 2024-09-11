@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace App\Services;
 
 use App\Models\User;
@@ -10,6 +10,18 @@ class UserService
 {
     public function createUser(array $data)
     {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'message' => "Connectez vous d'abord."
+            ], 403);
+        }
+        if (!in_array($user->role, ['admin'])) {
+            return response()->json([
+                'message' => 'Autorisation rejettée. Seuls les admins peuvent lister les utilisateurs.'
+            ], 403);
+        }
+
         return User::create([
             'pseudo' => $data['pseudo'],
             'email' => $data['email'],
@@ -18,11 +30,17 @@ class UserService
         ]);
     }
 
-    public function getUsers() {
+    public function getUsers()
+    {
         $user = Auth::user();
         if (!$user) {
             return response()->json([
                 'message' => "Connectez vous d'abord."
+            ], 403);
+        }
+        if (!in_array($user->role, ['admin'])) {
+            return response()->json([
+                'message' => 'Autorisation rejettée. Seuls les admins peuvent lister les utilisateurs.'
             ], 403);
         }
 

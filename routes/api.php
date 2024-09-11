@@ -77,10 +77,10 @@ Route::prefix('v1')->group(function () {
         Route::middleware('auth:api')->get('/', [UserController::class, 'getUsers'])->name('users.idenx');
 
         // LISTER LES UTILISATEUR PAR ROLE:
-        Route::get("/role/filter", [UserController::class, 'filterByRole'])->name('users.role');
+        Route::middleware('auth:api')->get("/role/filter", [UserController::class, 'filterByRole'])->name('users.role');
 
         // AJOUTER UN NOUVEL UTILISATEUR:
-        Route::post('/register', [UserController::class, 'store'])->name('users.store');
+        Route::middleware('auth:api')->post('/register', [UserController::class, 'store'])->name('users.store');
 
         // Route::post('/login', [UserController::class, 'login'])->name('user.login');
         Route::post('/login', [AuthController::class, 'login'])->name('user.login');
@@ -89,17 +89,17 @@ Route::prefix('v1')->group(function () {
         // Route::middleware('auth:sanctum')->post('/logout', [UserController::class, 'logout'])->name('users.logout');
 
         // METTRE A JOUR UN USER:
-        Route::put('/{id}', [UserController::class, 'update'])
+        Route::middleware('auth:api')->put('/{id}', [UserController::class, 'update'])
             ->name('users.update');
 
-        Route::patch('/{id}', [UserController::class, 'update'])
+        Route::middleware('auth:api')->patch('/{id}', [UserController::class, 'update'])
             ->name('users.update');
 
-        Route::delete('/{id}', [UserController::class, 'deleteUser'])
+            Route::middleware('auth:api')->delete('/{id}', [UserController::class, 'deleteUser'])
             ->name('user.delete');
 
         // CRÉER UN COMPTE POUR UN CLIENT APRES CONNEXION ADMIN|BOUTIQUIER:
-        Route::middleware('auth:api')->post('/clientAccount/{id}', [AuthController::class, 'createAccount'])->name('createClient.account');
+        Route::middleware('auth:api')->post('/clientAccount', [AuthController::class, 'createAccount'])->name('createClient.account');
     });
 
 
@@ -108,74 +108,74 @@ Route::prefix('v1')->group(function () {
     Route::prefix('clients')->group(function () {
 
         // Route pour lister tous les clients
-        Route::get('/', [ClientController::class, 'index'])->name('clients.index');
+        Route::middleware('auth:api')->get('/', [ClientController::class, 'index'])->name('clients.index');
         // });
 
         // Route pour lister un client par ID
-        Route::get('/{id}', [ClientController::class, 'show'])->name('clients.show');
+        Route::middleware('auth:api')->get('/{id}', [ClientController::class, 'show'])->name('clients.show');
 
         // Route pour afficher un client avec son compte:
-        Route::get("/{id}/user", [ClientController::class, 'showClientWithUser'])->name('client.account');
+        Route::middleware('auth:api')->get("/{id}/user", [ClientController::class, 'showClientWithUser'])->name('client.account');
 
         // Route pour rechercher un client par téléphone:
-        Route::get('/phone', [ClientController::class, 'findByPhone'])->name('client.phone');
+        Route::middleware('auth:api')->get('/phone', [ClientController::class, 'findByPhone'])->name('client.phone');
 
         // Route pour rechercher plusieurs clients par téléphone:
-        Route::get('/phones', [ClientController::class, 'findUsersByPhones'])->name('clients.phones');
+        Route::middleware('auth:api')->get('/phones', [ClientController::class, 'findUsersByPhones'])->name('clients.phones');
 
         // FILTRE PAR CLIENT AVEC OU SANS COMPTE:
-        Route::get("/account/filter", [ClientController::class, 'listByAccount'])->name('clients.accounts');
+        Route::middleware('auth:api')->get("/account/filter", [ClientController::class, 'listByAccount'])->name('clients.accounts');
 
         // FILTRE PAR STATUS ACTIF OU BLOQUE:
-        Route::get("/status/filter", [ClientController::class, 'listByStatus'])->name('clients.status');
+        Route::middleware('auth:api')->get("/status/filter", [ClientController::class, 'listByStatus'])->name('clients.status');
 
         // Route pour ajouter un nouveau client sans compte
-        Route::post('/', [ClientController::class, 'store'])->name('clients.store');
+        Route::middleware('auth:api')->post('/', [ClientController::class, 'store'])->name('clients.store');
 
         // Route pour ajouter un nouveau client avec compte
-        Route::post('/client/user', [ClientController::class, 'storeWithAccount'])->name('clientUser.store');
+        Route::middleware('auth:api')->post('/client/user', [ClientController::class, 'storeWithAccount'])->name('clientUser.store');
 
-        Route::post('/mailTest', [ClientController::class, 'testSendMail']);
+        Route::middleware('auth:api')->post('/mailTest', [ClientController::class, 'testSendMail']);
 
     });
 
     // -------------- ARTICLES:
     Route::prefix('articles')->group(function () {
-        Route::get("/", [ArticleController::class, 'index'])->name('articles.index');
-        Route::get('/{id}', [ArticleController::class, 'show'])->name('articles.show');
-        Route::get("/search/libelle", [ArticleController::class, 'searchByLibelle'])->name('articles.search');
-        Route::get("/search/dispo", [ArticleController::class, 'filterByAvailability'])->name('articles.dispo');
+        Route::middleware('auth:api')->get("/", [ArticleController::class, 'index'])->name('articles.index');
+        Route::middleware('auth:api')->get('/{id}', [ArticleController::class, 'show'])->name('articles.show');
+        Route::middleware('auth:api')->post("/search/libelle", [ArticleController::class, 'searchByLibelle'])->name('articles.search');
+        Route::middleware('auth:api')->get("/search/dispo", [ArticleController::class, 'filterByAvailability'])->name('articles.dispo');
 
 
         // FONCTIONS EN STAND BY: ELLES PERMETTENT DE MODIFIER UN OU PLUSIEURS ATTRIBUTS:
         // Route::put('/{id}', [ArticleController::class, 'update'])->name('articles.update');
         // Route::patch('/patch/{id}', [ArticleController::class, 'update'])->name('articles.update');
 
-        Route::patch("/{id}", [ArticleController::class, 'updateOne'])->name('articleQte.update');
+        Route::middleware('auth:api')->patch("/{id}", [ArticleController::class, 'updateOne'])->name('articleQte.update');
 
-        Route::post('/', [ArticleController::class, 'store'])->name('articles.store');
-        Route::post('/restore/{id}', [ArticleController::class, 'restore'])->name('articles.restore');
-        Route::post('/all', [ArticleController::class, 'addStock'])->name('articles.addStock');
-        Route::delete('/delete/{id}', [ArticleController::class, 'destroy'])->name('articles.destroy');
+        Route::middleware('auth:api')->post('/', [ArticleController::class, 'store'])->name('articles.store');
+        Route::middleware('auth:api')->post('/restore/{id}', [ArticleController::class, 'restore'])->name('articles.restore');
+        Route::middleware('auth:api')->post('/all', [ArticleController::class, 'addStock'])->name('articles.addStock');
+        Route::middleware('auth:api')->delete('/delete/{id}', [ArticleController::class, 'destroy'])->name('articles.destroy');
     });
 
     // -------------- DETTES:
     Route::prefix('dettes')->group(function () {
         
         // LISTER TOUTES LES DETTES:
-        Route::get('/', [DetteController::class, 'index'])->name('dettes-list');
+        Route::middleware('auth:api')->get('/', [DetteController::class, 'index'])->name('dettes-list');
 
         // FILTRER DETTES PAR STATUS(SOLDÉ / NON SOLDÉ):
-         Route::get('/solde', [DetteController::class, 'filterDettes'])->name('dette-solde');
+        Route::middleware('auth:api')->get('/solde', [DetteController::class, 'filterDettes'])->name('dette-solde');
         
           // LISTER LES PAIEMENTS D'UNE DETTE:
-        Route::get('/paymentsList/{id}', [DetteController::class, 'getPaiementsByDette'])->name('dettte-payments');
+          Route::middleware('auth:api')->get('/paymentsList/{id}', [DetteController::class, 'getPaiementsByDette'])->name('dettte-payments');
 
         // LISTER LES ARTICLES D'UNE DETTE:
-        Route::get('/{id}/articles', [DetteController::class, 'getArticles'])->name('dette-articles');
+        Route::middleware('auth:api')->get('/{id}/articles', [DetteController::class, 'getArticles'])->name('dette-articles');
 
         // AJOUTER NOUVELLE DETTE:
-        Route::post('/', [DetteController::class, 'store'])->name('add-dette');
+        Route::middleware('auth:api')->post('/', [DetteController::class, 'store'])->name('add-dette');
 
         // LISTER UNE DETTE PAR SON ID:
 
@@ -189,10 +189,10 @@ Route::prefix('v1')->group(function () {
     Route::prefix('paiements')->group(function () {
          
         // LISTER TOUS LES PAIEMENTS:
-        Route::get("/", [PaiementController::class, 'index'])->name('payments-liste');
+        Route::middleware('auth:api')->get("/", [PaiementController::class, 'index'])->name('payments-liste');
 
         // AJOUTER UN PAEIMENT À UNE DETTE:
-        Route::post("/", [PaiementController::class, 'store'])->name('add-payment');
+        Route::middleware('auth:api')->post("/", [PaiementController::class, 'store'])->name('add-payment');
 
 
     });

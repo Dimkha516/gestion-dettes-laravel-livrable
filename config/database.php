@@ -93,6 +93,15 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'mongodb' => [
+        'driver'   => 'mongodb',
+        'dsn'      => env('MONGO_DSN', 'mongodb+srv://dimkha516:hikkma99@clustergestiondettelara.dc6rt.mongodb.net/'),
+        'database' => env('MONGO_DATABASE', 'gestion_dettes'),
+        'options'  => [
+            'database' => env('MONGO_AUTH_DATABASE', 'admin'), // Database pour l'authentification
+        ],
+    ],
+
     ],
 
     /*

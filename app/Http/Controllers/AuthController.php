@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
+use App\Jobs\MailToNewUserJob;
 use App\Models\Client;
 use App\Models\User;
 use App\Services\AuthService;
@@ -17,9 +18,9 @@ class AuthController extends Controller
      * Authentifier l'utilisateur et retourner un token d'accès.
      */
 
-     protected $authService;
+    protected $authService;
 
-     public function __construct(AuthService $authService)
+    public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
     }
@@ -37,7 +38,7 @@ class AuthController extends Controller
     }
 
     // CRÉER UN COMPTE POUR UN CLIENT APRES CONNEXION ADMIN|BOUTIQUIER:
-    public function createAccount(Request $request, $id)
+    public function createAccount(Request $request)
     {
         // Vérifiez si l'utilisateur a le rôle requis
         $user = Auth::user();
@@ -50,12 +51,15 @@ class AuthController extends Controller
         // Validation des données
         $validatedData = $request->validate(
             [
+                'id' => 'required|integer',
                 'pseudo' => 'required|string|unique:users,pseudo',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|string|min:5|confirmed|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{5,}$/',
-                'password_confirmation' => 'required'
+                'password_confirmation' => 'required',
             ],
             [
+                'id.required' => 'Vous devez saisir ID du client !',
+                'id.integer' => 'ID saisi non valide !',
                 'pseudo.required' => 'Le pseudo est obligatoire !',
                 'pseudo.unique' => 'Ce pseudo est déjas pris !',
                 'email.required' => 'Vous devez saisir email utilisateur',
@@ -69,7 +73,8 @@ class AuthController extends Controller
         );
 
         // Trouvez le client
-        $client = Client::find($id);
+        // $client = Client::find($id);
+        $client = Client::find($validatedData['id']);
         if (!$client) {
             return response()->json([
                 'message' => 'Client non trouvé.'
@@ -94,12 +99,15 @@ class AuthController extends Controller
         // Associez l'ID du user au client
         $client->user_id = $user->id;
         $client->save();
+        
+        MailToNewUserJob::dispatch($user);
 
         return response()->json([
             'message' => 'Compte utilisateur créé avec succès.',
             'client' => $client,
             'user' => $user
         ], 201);
+
     }
 
 

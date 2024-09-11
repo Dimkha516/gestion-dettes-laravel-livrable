@@ -222,7 +222,7 @@ Ensuite créer un job qui fait une relance. Cette relance sera ratachée à une 
     }
 }
 
-
+------------------------------------------------------- GESTION CREATION CLIENT ET UTILISATEUR:
 1: Créer des événements et des écouteurs :
     --- Un événement pour signaler la création d'un client et d'un utilisateur.
 
@@ -259,18 +259,24 @@ Ensuite créer un job qui fait une relance. Cette relance sera ratachée à une 
 *** Enregistrer l'observateur
 
 
-Nous suspendons cette partie et nous allons nous attaquer à la partie dettes. Pour commencer intéressons nous à la création de dette pour client. Une dette est caractérisée par: montant; clientId; articles[{articleId, qteVente, prixVente}]; paiement.
-   Pour réaliser cela, nous allons utilisé les fichiers: DetteRepository; DetteService; DetteController; DetteRequest(pour les validations). 
-Pour les règles de validations on a:
-- Tous les champs sont obligatoires sauf paiement;
-- Le clientId doit exister en BD
-- Le montant de la dette est positif
-- Le tableau des articles doit avoir au moins un article
-- L'id d'un article doit exister en BD
-- La qteVente de l'article doit être inférieure ou égale à la qteStock
-- En cas de paiement, le montant devra être inférieure au montant de la dette.
-Pour la procédure d'enregistrement il faut:
-- ajouter la dette
-- mettre à jour la qteStock des articles de la dette.
-Tu crée une migration pour Dette et article_dette. Et un modèle Dette mais
-pas de modèle pour article_dette car on va utilisé les relations pour cela. Ensuite tu implémente ces fonctions
+------------------------------------------------------- GESTION NOTIFICATION DETTE:
+
+1. Création de la notification par email:
+    *** php artisan make:notification RappelDetteNotification
+
+2. Création du job pour l'envoi des emails de rappel
+    *** php artisan make:job RappelDetteJob
+
+3. Planification de la tâche avec Laravel Scheduler
+    *** Modification dans app/Console/Kernel.php :
+
+4. Test en temps réel
+    *** composer dump-autoload
+    *** php artisan tinker
+    *** App\Jobs\RappelDetteJob::dispatch(); => Dans le terminal tinker
+    *** RappelDetteJob::dispatch();  => Dans le terminal tinker
+
+
+mongodb+srv://dimkha516:hikkma99@clustergestiondettelara.dc6rt.mongodb.net/
+mongodb+srv://dimkha516:hikkma99@clustergestiondettelara.dc6rt.mongodb.net/
+mongodb+srv://dimkha516:<db_password>@clustergestiondettelara.dc6rt.mongodb.net/

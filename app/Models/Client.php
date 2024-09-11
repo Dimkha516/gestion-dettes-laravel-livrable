@@ -17,7 +17,11 @@ class Client extends Model
 
     ];
 
-    protected $hidden = [];
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
 
     protected $casts = [];
 

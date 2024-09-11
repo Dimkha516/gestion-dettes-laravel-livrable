@@ -126,7 +126,10 @@ class ClientController extends Controller
             //     $userRequest->$validatedUserData,
             //     $photo
             // );
+            
+            
             // Passer les données validées et le fichier photo au service:
+            //---------------------------------------------------------
             $result = $this->clientService->createClientWithAccount(
                 $clientRequest->validated(),
                 $userRequest->validated(),

@@ -277,6 +277,30 @@ Ensuite créer un job qui fait une relance. Cette relance sera ratachée à une 
     *** RappelDetteJob::dispatch();  => Dans le terminal tinker
 
 
-mongodb+srv://dimkha516:hikkma99@clustergestiondettelara.dc6rt.mongodb.net/
-mongodb+srv://dimkha516:hikkma99@clustergestiondettelara.dc6rt.mongodb.net/
-mongodb+srv://dimkha516:<db_password>@clustergestiondettelara.dc6rt.mongodb.net/
+-------------------------- ARCHIVAGE DETTE SOLDÉES:-----------------------------
+1) Installation et config mongodb
+
+2) Création model pour les dettes archivées (non nécessaire si on utilise Cluster)
+
+3) Création JOB pour l'Archivage
+
+4) Programmer l'archivage dans app/Console/Kernel.php
+
+5) Teste manuel de l'archivage sur Tinker: ArchivageDetteJob::dispatch();
+
+
+-------------------------- NOTIFICATION SMS RAPPEL DETTE :-----------------------------
+1) Inscription TWILIO
+
+2) Configuration TWILIO: .env ; /config/services.php
+
+3) Services/TwilioService.php
+
+4) RappelDetteSmsJob.php
+
+5) RappelDetteSmsJobNotification
+
+6) Kernel
+
+
+ 

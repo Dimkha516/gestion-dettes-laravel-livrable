@@ -1,0 +1,11 @@
+[90m= [39m[34;4mApp\Models\Client[39;24m {#5513
+    [34mid[39m: [35m1[39m,
+    [34msurname[39m: "[32mkiko123[39m",
+    [34mstatus[39m: "[32mactif[39m",
+    [34mtelephone[39m: "[32m+221781114327[39m",
+    [34madresse[39m: [36mnull[39m,
+    [34muser_id[39m: [35m33[39m,
+    #[33mcreated_at[39m: "[32m2024-08-31 10:49:12[39m",
+    #[33mupdated_at[39m: "[32m2024-08-31 10:49:12[39m",
+  }
+

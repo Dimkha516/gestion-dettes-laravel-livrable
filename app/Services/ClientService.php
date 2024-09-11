@@ -10,6 +10,8 @@ use App\Jobs\UploadPhoto;
 use App\Jobs\UploadPhotoToCloudinary;
 use App\Repositories\ClientRepository;
 use Cloudinary\Cloudinary;
+use Cloudinary\Uploader;
+
 use DB;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
@@ -80,9 +82,13 @@ class ClientService
             if ($photo) {
                 $tempPath = $photo->store('temp');
                 UploadPhotoToCloudinary::dispatch($tempPath, $clientData);
-            } else {
+            }
+            // 
+            else {
                 $clientData['photo'] = 'https://res.cloudinary.com/dytchfsin/image/upload/v1725465088/xcb8pgm42qc6vkzgwnvd.png';
             }
+
+
             // Créer le client et l'utilisateur:
             $client = $this->clientRepo->createClient($clientData);
             if (!$client) {

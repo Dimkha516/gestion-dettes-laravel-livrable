@@ -73,6 +73,9 @@ class ArchivageDetteJob implements ShouldQueue
                 'date' => $dette->created_at,
                 'archived_at' => now(),
             ]);
+
+            // Supprimer la dette de MySQL après archivage
+            DB::connection('mysql')->table('dettes')->where('id', $dette->id)->delete();
         }
     }
 }

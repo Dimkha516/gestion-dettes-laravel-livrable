@@ -47,6 +47,7 @@ class UploadPhotoToCloudinary implements ShouldQueue
     public function handle(): void
     {
 
+
         // Utiliser l'instance Cloudinary pour uploader l'image
         $uploadResult = $this->cloudinary->uploadApi()->upload(Storage::disk('local')->path($this->tempPath), [
             'folder' => 'clients_photos',
@@ -54,8 +55,8 @@ class UploadPhotoToCloudinary implements ShouldQueue
             'resource_type' => 'image'
         ]);
 
-          // Assigner l'URL sécurisée à la photo du client
-          $this->clientData['photo'] = $uploadResult['secure_url'];
+        // Assigner l'URL sécurisée à la photo du client:
+        $this->clientData['photo'] = $uploadResult['secure_url'];
 
         // Supprimer le fichier temporaire après l'upload
         Storage::disk('local')->delete($this->tempPath);

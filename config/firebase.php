@@ -9,9 +9,9 @@ return [
      * ------------------------------------------------------------------------
      */
 
-    'default' => env('FIREBASE_PROJECT', 'app'),
-    'credentials' => base_path('config/firebase_credentials.json'),
-    'database_url' => env('FIREBASE_DATABASE_URL'), // Ajoutez cette ligne si elle n'existe pas
+    // 'default' => env('FIREBASE_PROJECT', 'app'),
+    // 'credentials' => base_path('config/firebase_credentials.json'),
+    // 'database_url' => env('FIREBASE_DATABASE_URL'), // Ajoutez cette ligne si elle n'existe pas
 
 
 

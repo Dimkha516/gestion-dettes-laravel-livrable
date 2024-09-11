@@ -20,8 +20,10 @@ class Kernel extends ConsoleKernel
         // Planifier le rappel des dettes par email tous les vendredis à 14h
         $schedule->job(new RappelDetteJob())->fridays()->at('14:00');
         
+        
         // Planifier le rappel des dettes par sms tous les vendredis à 14h
         $schedule->job(new RappelDetteSmsJob())->weeklyOn(5, '14:00'); // Chaque vendredi à 14h
+
 
  
         // Exécute le job d'archivage des dettes soldées tous les jours à minuit

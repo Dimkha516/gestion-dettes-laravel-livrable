@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -24,6 +25,9 @@ class UploadPhotoToCloudinary implements ShouldQueue
 
     protected $clientData;
 
+    protected $userId;
+
+
     /**
      * Create a new job instance.
      */
@@ -31,6 +35,7 @@ class UploadPhotoToCloudinary implements ShouldQueue
     {
         $this->tempPath = $tempPath;
         $this->clientData = $clientData;
+
 
         $this->cloudinary = new Cloudinary([
             'cloud' => [
@@ -57,6 +62,8 @@ class UploadPhotoToCloudinary implements ShouldQueue
 
         // Assigner l'URL sécurisée à la photo du client:
         $this->clientData['photo'] = $uploadResult['secure_url'];
+
+       
 
         // Supprimer le fichier temporaire après l'upload
         Storage::disk('local')->delete($this->tempPath);

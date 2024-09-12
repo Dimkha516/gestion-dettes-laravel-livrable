@@ -12,7 +12,6 @@ class DetteService
     {
         $this->detteRepo = $detteRepo;
     }
-
     public function getAllDettes()
     {
         $dettes = Dette::all();
@@ -22,9 +21,6 @@ class DetteService
         }
 
         return ['success' => true, 'message' => 'Liste des dettes', 'data' => $dettes, 'status' => 200];
-
-
-
     }
 
     public function createDette(array $data)
@@ -55,7 +51,7 @@ class DetteService
         return $dette->paiements;
     }
 
-    
+
 
 
 }

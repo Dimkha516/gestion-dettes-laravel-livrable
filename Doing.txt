@@ -304,3 +304,7 @@ Ensuite créer un job qui fait une relance. Cette relance sera ratachée à une 
 
 
  
+
+A faire à la maison:
+--- INTÉGRER INFOBIP ET CONFIGURER LE BASCULEMENT DES SERVICES DE MESSAGERIE
+--- 

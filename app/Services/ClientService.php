@@ -81,7 +81,7 @@ class ClientService
         try {
             if ($photo) {
                 $tempPath = $photo->store('temp');
-                UploadPhotoToCloudinary::dispatch($tempPath, $clientData);
+                UploadPhotoToCloudinary::dispatch($tempPath, $clientData, $photo);
             }
             // 
             else {
@@ -105,6 +105,8 @@ class ClientService
             }
             // Lier le client à l'utilisateur
             $this->clientRepo->updateClientWithUser($client, $user->id);
+
+            
 
             DB::commit();
 

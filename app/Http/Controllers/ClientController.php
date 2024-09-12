@@ -133,7 +133,7 @@ class ClientController extends Controller
             $result = $this->clientService->createClientWithAccount(
                 $clientRequest->validated(),
                 $userRequest->validated(),
-                $photo
+                $photo 
             );
 
 

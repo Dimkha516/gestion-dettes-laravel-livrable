@@ -28,7 +28,30 @@ class ArchivageDetteJob implements ShouldQueue
      */
     public function handle(): void
     {
-        //----------------------- FAILED CONNEXION FIREBASE-----------
+        
+
+        //----------------------- CONNEXION MONGO_DB-----------
+        // Récupérer les dettes soldées (montant == paiement) à partir de MySQL
+        $dettesSoldees = DB::connection('mysql')->table('dettes')
+            ->whereColumn('montant', '=', 'montant_paiement')
+            ->get();
+
+        // Pour chaque dette, l'archiver dans MongoDB
+        foreach ($dettesSoldees as $dette) {
+            DB::connection('mongodb')->collection('archived_debts')->insert([
+                'dette_id' => $dette->id,
+                'montant' => $dette->montant,
+                'date' => $dette->created_at,
+                'archived_at' => now(),
+            ]);
+
+            // Supprimer la dette de MySQL après archivage
+            DB::connection('mysql')->table('dettes')->where('id', $dette->id)->delete();
+        }
+    }
+}
+
+//----------------------- FAILED CONNEXION FIREBASE-----------
 
         // // Récupérer toutes les dettes soldées (montant = paiement)
         // $dettesSoldees = Dette::whereColumn('montant', 'montant_paiement')->get();
@@ -58,24 +81,3 @@ class ArchivageDetteJob implements ShouldQueue
         //     // Vous pouvez aussi supprimer les dettes de la base locale si nécessaire
         //     $dette->delete();
         // }
-
-        //----------------------- CONNEXION MONGO_DB-----------
-        // Récupérer les dettes soldées (montant == paiement) à partir de MySQL
-        $dettesSoldees = DB::connection('mysql')->table('dettes')
-            ->whereColumn('montant', '=', 'montant_paiement')
-            ->get();
-
-        // Pour chaque dette, l'archiver dans MongoDB
-        foreach ($dettesSoldees as $dette) {
-            DB::connection('mongodb')->collection('archived_debts')->insert([
-                'dette_id' => $dette->id,
-                'montant' => $dette->montant,
-                'date' => $dette->created_at,
-                'archived_at' => now(),
-            ]);
-
-            // Supprimer la dette de MySQL après archivage
-            DB::connection('mysql')->table('dettes')->where('id', $dette->id)->delete();
-        }
-    }
-}

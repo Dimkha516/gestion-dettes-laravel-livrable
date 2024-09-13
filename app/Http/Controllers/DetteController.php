@@ -18,7 +18,9 @@ class DetteController extends Controller
 
     // LISTER TOUTES LES DETTES:
     public function index(): JsonResponse
-    {
+    {   
+        
+
         $dettes = $this->detteService->getAllDettes();
 
         return response()->json([

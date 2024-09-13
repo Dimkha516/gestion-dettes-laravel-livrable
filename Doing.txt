@@ -308,3 +308,57 @@ Ensuite créer un job qui fait une relance. Cette relance sera ratachée à une 
 A faire à la maison:
 --- INTÉGRER INFOBIP ET CONFIGURER LE BASCULEMENT DES SERVICES DE MESSAGERIE
 --- 
+
+
+-------------------- RÉSOLUTION ERREUR PUSH ------------------------
+ *** bfg --delete-files firebase_credentials.json
+ *** git reflog expire --expire=now --all && git gc --prune=now --aggressive
+
+
+
+
+------------------------Messagerie: TWILIO et INFOBIP---------------------
+------------------------Archivage: Mongo et Firebase-----------------------
+
+
+Session de rattrapage: 
+*** Afficher les dettes archivées
+*** Afficher les dettes archivées d'un client
+*** Filtrer par date et/ou client
+*** Restorer dette archivée
+
+
+--- Afficher les détails d'une dette: Article, paiement....
+
+
+---- Ajouter une table notification pour que à chaque fois qu'on envoi une notif au client qu'on l'enregistre aussi dans cette table.
+--- Récupérer les notifs d'un client
+--- Possibilité d'envoyer une notif à un seul client.
+--- NOTIFICATION saisie
+--- Le client connecté peut voir ses notifications.    
+
+
+---- Ajouter une date échéance dans dette => Modifier endpoint ajout dette pour ajouter la date d'écheance
+--- NOTIFICATION pour les clients dont la date d'écheance est dépassée
+
+
+AFTER JUMAH: TESTER LE MESSAGE SUR LE SERVICE QUI MARCHE:
+    CODE TINKER:
+    > $smsService = app(App\Services\SmsService::class);
+= App\Services\SmsService {#5166}
+
+> $number = '+221781114327';
+= "+221781114327"
+
+> $message = "Salut";
+= "Salut"
+
+> $response = $smsService->sendSms($number, $message);
+= "{"messages":[{"messageId":"4262327350224335960032","status":{"description":"Message sent to next instance","groupId":1,"groupName":"PENDING","id":26,"name":"PENDING_ACCEPTED"},"to":"+221781114327"}]}"
+
+> echo $response;
+{"messages":[{"messageId":"4262327350224335960032","status":{"description":"Message sent to next instance","groupId":1,"groupName":"PENDING","id":26,"name":"PENDING_ACCEPTED"},"to":"+221781114327"}]}⏎
+> $smsService = app(App\Services\SmsService::class);
+= App\Services\SmsService {#5180}
+
+

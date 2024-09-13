@@ -32,9 +32,15 @@ return [
     ],
 
     'twilio' => [
-    'sid' => env('TWILIO_SID'),
-    'token' => env('TWILIO_TOKEN'),
-    'from' => env('TWILIO_FROM'),
-],
+        'sid' => env('TWILIO_SID'),
+        'token' => env('TWILIO_TOKEN'),
+        'from' => env('TWILIO_FROM'),
+    ],
+    
+    'infobip' => [
+        'api_key' => env('INFOBIP_API_KEY'),
+        'base_url' => env('INFOBIP_BASE_URL'),
+        'from' => env('INFOBIP_FROM'),
+    ],
 
 ];

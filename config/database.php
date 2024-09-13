@@ -94,13 +94,13 @@ return [
         ],
 
         'mongodb' => [
-        'driver'   => 'mongodb',
-        'dsn'      => env('MONGO_DSN', 'mongodb+srv://dimkha516:hikkma99@clustergestiondettelara.dc6rt.mongodb.net/'),
-        'database' => env('MONGO_DATABASE', 'gestion_dettes'),
-        'options'  => [
-            'database' => env('MONGO_AUTH_DATABASE', 'admin'), // Database pour l'authentification
+            'driver' => 'mongodb',
+            'dsn' => env('MONGO_DSN', 'mongodb+srv://dimkha516:hikkma99@clustergestiondettelara.dc6rt.mongodb.net/'),
+            'database' => env('MONGO_DATABASE', 'gestion_dettes'),
+            'options' => [
+                'database' => env('MONGO_AUTH_DATABASE', 'admin'), // Database pour l'authentification
+            ],
         ],
-    ],
 
     ],
 
@@ -134,7 +134,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [

@@ -10,6 +10,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+
 
 class ArchivageDetteJob implements ShouldQueue
 {
@@ -19,7 +21,7 @@ class ArchivageDetteJob implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct()
-    {
+    { 
         //
     }
 
@@ -29,6 +31,7 @@ class ArchivageDetteJob implements ShouldQueue
     public function handle(): void
     {
         
+        // Log::info('Bonjour');
 
         //----------------------- CONNEXION MONGO_DB-----------
         // Récupérer les dettes soldées (montant == paiement) à partir de MySQL
@@ -40,7 +43,9 @@ class ArchivageDetteJob implements ShouldQueue
         foreach ($dettesSoldees as $dette) {
             DB::connection('mongodb')->collection('archived_debts')->insert([
                 'dette_id' => $dette->id,
+                "client_id" => $dette->client_id,
                 'montant' => $dette->montant,
+                'montant_paiement' => $dette->montant_paiement,
                 'date' => $dette->created_at,
                 'archived_at' => now(),
             ]);
@@ -48,8 +53,14 @@ class ArchivageDetteJob implements ShouldQueue
             // Supprimer la dette de MySQL après archivage
             DB::connection('mysql')->table('dettes')->where('id', $dette->id)->delete();
         }
-    }
+
+        Log::info('Dettes Soldées Du Jour Archivées avec succès !');
+    } 
 }
+
+
+ 
+
 
 //----------------------- FAILED CONNEXION FIREBASE-----------
 

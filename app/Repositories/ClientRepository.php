@@ -21,4 +21,9 @@ class ClientRepository
         $client->user_id = $userId;
         $client->save();
     }
+
+    public function findClientById($clientId)
+    {
+        return Client::find($clientId);
+    }
 }

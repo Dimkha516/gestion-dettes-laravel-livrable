@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DetteController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\UserController;
 use App\Mail\ClientFidelityCardMail;
@@ -95,7 +96,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware('auth:api')->patch('/{id}', [UserController::class, 'update'])
             ->name('users.update');
 
-            Route::middleware('auth:api')->delete('/{id}', [UserController::class, 'deleteUser'])
+        Route::middleware('auth:api')->delete('/{id}', [UserController::class, 'deleteUser'])
             ->name('user.delete');
 
         // CRÉER UN COMPTE POUR UN CLIENT APRES CONNEXION ADMIN|BOUTIQUIER:
@@ -161,15 +162,15 @@ Route::prefix('v1')->group(function () {
 
     // -------------- DETTES:
     Route::prefix('dettes')->group(function () {
-        
+
         // LISTER TOUTES LES DETTES:
         Route::middleware('auth:api')->get('/', [DetteController::class, 'index'])->name('dettes-list');
 
         // FILTRER DETTES PAR STATUS(SOLDÉ / NON SOLDÉ):
         Route::middleware('auth:api')->get('/solde', [DetteController::class, 'filterDettes'])->name('dette-solde');
-        
-          // LISTER LES PAIEMENTS D'UNE DETTE:
-          Route::middleware('auth:api')->get('/paymentsList/{id}', [DetteController::class, 'getPaiementsByDette'])->name('dettte-payments');
+
+        // LISTER LES PAIEMENTS D'UNE DETTE:
+        Route::middleware('auth:api')->get('/paymentsList/{id}', [DetteController::class, 'getPaiementsByDette'])->name('dettte-payments');
 
         // LISTER LES ARTICLES D'UNE DETTE:
         Route::middleware('auth:api')->get('/{id}/articles', [DetteController::class, 'getArticles'])->name('dette-articles');
@@ -179,21 +180,47 @@ Route::prefix('v1')->group(function () {
 
         // LISTER UNE DETTE PAR SON ID:
 
-        
+
         // LISTER LES PAIEMENTS D'UNE DETTE:
+
+
+        // LISTER TOUTES LES DETTES ARCHIVÉES AVEC POSSIBILTE DE FILTRE PAR CLIENT ET/OU DATE:
+        Route::middleware('auth:api')->get("/archive", [DetteController::class, 'archivedDebts'])->name('archivedDebts-list');
+
+        // LISTER LES DETTES ARCHIVÉES D'UN CLIENT:
+        Route::middleware('auth:api')->get('/clients/{clientId}/dettes', [DetteController::class, 'getDettesByClientId'])->name('clientArchived-debts');
+
+        // RESTAURER DETTES ARCHIVÉES PAR DATE: 
+        Route::middleware('auth:api')->get('/restaure/{date}', [DetteController::class, 'restoreByDate']);
+
+        // RESTAURER DETTE ARCHIVÉE PAR SON ID:
+        Route::middleware('auth:api')->get('/restaure/dette/{dette_id}', [DetteController::class, 'restoreDetteById']);
+
+
+        // RESTAURER DETTES ARCHIVÉES D'UN CLIENT:
+        Route::middleware('auth:api')->get('/client/{id}', [DetteController::class, 'restoreDettesByClientId']);
 
 
     });
 
     // -------------- PAIEMENTS:
     Route::prefix('paiements')->group(function () {
-         
+
         // LISTER TOUS LES PAIEMENTS:
         Route::middleware('auth:api')->get("/", [PaiementController::class, 'index'])->name('payments-liste');
 
         // AJOUTER UN PAEIMENT À UNE DETTE:
         Route::middleware('auth:api')->post("/", [PaiementController::class, 'store'])->name('add-payment');
 
+
+    });
+
+    //---------------------- NOTIFICATIONS
+    Route::prefix('notifications')->group(function () {
+
+        // ENVOYER UNE NOTIFICATION DETTE NON SOLDÉE À UN CLIENT:
+
+        Route::middleware('auth:api')->get('/client/{id}', [NotificationController::class, 'notifyClient']);
 
     });
 

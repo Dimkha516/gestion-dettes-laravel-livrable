@@ -274,7 +274,7 @@ Ensuite créer un job qui fait une relance. Cette relance sera ratachée à une 
     *** composer dump-autoload
     *** php artisan tinker
     *** App\Jobs\RappelDetteJob::dispatch(); => Dans le terminal tinker
-    *** RappelDetteJob::dispatch();  => Dans le terminal tinker
+    *** RappelDetteJob::dispatch();  => Dans le terminal tinker 
 
 
 -------------------------- ARCHIVAGE DETTE SOLDÉES:-----------------------------
@@ -360,5 +360,42 @@ AFTER JUMAH: TESTER LE MESSAGE SUR LE SERVICE QUI MARCHE:
 {"messages":[{"messageId":"4262327350224335960032","status":{"description":"Message sent to next instance","groupId":1,"groupName":"PENDING","id":26,"name":"PENDING_ACCEPTED"},"to":"+221781114327"}]}⏎
 > $smsService = app(App\Services\SmsService::class);
 = App\Services\SmsService {#5180}
+
+
+---------------------------TRAITEMENT MESSAGERIE RAPPEL DETTE--------------------
+
+1) Installation et configuration TWILIO et INFOBIP
+
+2) SmsServiceInterface
+
+3) TwilioService
+
+4) InfoBipService
+
+5) RappelDetteSmsJob ==> Lecture du fichier .env pour choisir le service à exécuter
+
+
+ $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'message' => "Connectez vous d'abord."
+            ], 403);
+        }
+        if (!in_array($user->role, ['admin'])) {
+            return response()->json([
+                'message' => 'Autorisation rejettée. Seuls les admins peuvent lister les utilisateurs.'
+            ], 403);
+        }
+
+
+Démarrer un worker : php artisan queue:work
+
+Démarrer un worker et le faire fonctionner en boucle (meilleur pour la production): php artisan queue:work --daemon
+
+Lancer le worker en mode debug (voir les erreurs): php artisan queue:work --tries=3
+
+Lancer le planificateur manuellement (pour test) si QUEUE_CONNECTION=sync dans .env: php artisan schedule:run
+
+
 
 

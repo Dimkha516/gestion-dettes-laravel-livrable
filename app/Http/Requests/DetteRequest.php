@@ -39,12 +39,13 @@ class DetteRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     $articleId = $this->input('articles')[explode('.', $attribute)[1]]['article_id'];
                     $article = Article::find($articleId);
-    
+
                     if ($article && $value > $article->qteStock) {
                         $fail('La quantité vendue doit être inférieure ou égale à la quantité en stock.');
                     }
                 },
             ],
+            'dateEcheance' => 'nullable|date|after:today',
             'montant_paiement' => 'nullable|numeric|lt:montant', // Paiement optionnel, toujours inférieur au montant
         ];
     }
@@ -56,7 +57,9 @@ class DetteRequest extends FormRequest
             'articles.required' => 'Vous devez fournir au moins un article.',
             'articles.*.article_id.exists' => 'L\'article doit exister dans la base de données.',
             'articles.*.qte_vente.min' => 'La quantité vendue doit être au moins de 1.',
+            'dateEcheance.date' => 'Le format de la date échéance est invalide !',
             'montant_paiement.lt' => 'Le montant du paiement doit être inférieur au montant de la dette.',
+            'dateEcheance.after' => "La date échéance doit venir après la date du jour !"
         ];
     }
 }

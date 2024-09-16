@@ -36,11 +36,18 @@ return [
         'token' => env('TWILIO_TOKEN'),
         'from' => env('TWILIO_FROM'),
     ],
-    
+
     'infobip' => [
         'api_key' => env('INFOBIP_API_KEY'),
         'base_url' => env('INFOBIP_BASE_URL'),
         'from' => env('INFOBIP_FROM'),
     ],
+    'firebase' => [
+        // 'credentials' => env('FIREBASE_CREDENTIALS'),
+        'credentials' => base_path('config/gestion-dette-laravel-2-firebase-adminsdk-6mz1n-7ba959275a.json'),
+        'database_url' => env('FIREBASE_DATABASE_URL'), // Ajoute cette ligne pour spécifier l'URL correcte de la base de données
+    ],
+
+
 
 ];

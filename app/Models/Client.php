@@ -15,7 +15,9 @@ class Client extends Model
         'surname',
         'telephone',
         'address',
-        'status' // Ajoutez le statut ici
+        'status',
+        'categorie_id',
+        'montant_max'
 
     ];
 
@@ -32,11 +34,16 @@ class Client extends Model
     ];
 
     public function user()
-{   
-    // AVANT MODIF
-    // return $this->belongsTo(User::class);
+    {
+        // AVANT MODIF
+        // return $this->belongsTo(User::class);
 
-    // APRES MODIF
-    return $this->belongsTo(User::class, 'user_id');
-}
+        // APRES MODIF
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function categorie()
+    {
+        return $this->belongsTo(Categorie::class, 'categorie_id');
+    }
 }

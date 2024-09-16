@@ -194,6 +194,7 @@ class DetteRepository
             'client_id' => (int) $dette['client_id'],
             'montant' => (float) $dette['montant'],
             'montant_paiement' => (float) $dette['montant_paiement'],
+            'dateEcheance' => $dette['dateEcheance'],
             'created_at' => $dette['date'],
         ]);
     }

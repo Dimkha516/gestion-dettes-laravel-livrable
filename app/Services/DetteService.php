@@ -2,6 +2,7 @@
 namespace App\Services;
 use App\Models\Dette;
 use App\Repositories\ClientRepository;
+use App\Repositories\DetteFactory;
 use App\Repositories\DetteRepository;
 use Request;
 
@@ -10,10 +11,14 @@ class DetteService
     protected $detteRepo;
     protected $clientRepo;
 
+    protected $detteRepo2;
+
     public function __construct(DetteRepository $detteRepo, ClientRepository $clientRepo)
     {
         $this->detteRepo = $detteRepo;
         $this->clientRepo = $clientRepo;
+        // Utiliser la factory pour choisir entre Mongo ou Firebase
+        $this->detteRepo2 = DetteFactory::create();
     }
     public function getAllDettes()
     {
@@ -55,39 +60,72 @@ class DetteService
     }
 
 
+
+    //-------------------- PARTIE RESTAURATION DETTES ARCHIVÉES:
+
     /* Récupérer toutes les dettes archivées avec les informations sur les clients,
      * et appliquer les filtres si disponibles.
      */
 
     public function getAllArchivedDebts($filters = [])
     {
-        // Récupérer les dettes archivées avec les filtres depuis MongoDB
+        //---------------- VERSION AVEC FIREBASE &&|OU MONGO:
+        // Récupérer les dettes archivées avec les filtres depuis MongoDB ou Firebase
         $dettes = $this->detteRepo->getAllArchivedDebts($filters);
 
         // Initialiser une liste vide pour stocker les dettes et les clients associés
         $dettesWithClients = [];
 
         foreach ($dettes as $dette) {
-            // Récupérer les informations du client depuis la table SQL (ou une autre source)
+            // Récupérer les informations du client depuis la table SQL
             $client = $this->clientRepo->findClientById($dette['client_id']);
 
             // Vérifier si un client est trouvé (évitons les données manquantes)
             if ($client) {
-                // Ajouter la dette et le client dans la liste
                 $dettesWithClients[] = [
                     'dette' => $dette,
                     'client' => $client
                 ];
             } else {
-                // En cas de client manquant, on peut ajouter la dette seule (optionnel)
                 $dettesWithClients[] = [
                     'dette' => $dette,
-                    'client' => null  // Ou un message d'erreur si vous voulez
+                    'client' => null
                 ];
             }
-
         }
+
         return $dettesWithClients;
+
+
+
+        //---------------- VERSION SANS FIREBASE:
+        // // Récupérer les dettes archivées avec les filtres depuis MongoDB
+        // $dettes = $this->detteRepo->getAllArchivedDebts($filters);
+
+        // // Initialiser une liste vide pour stocker les dettes et les clients associés
+        // $dettesWithClients = [];
+
+        // foreach ($dettes as $dette) {
+        //     // Récupérer les informations du client depuis la table SQL (ou une autre source)
+        //     $client = $this->clientRepo->findClientById($dette['client_id']);
+
+        //     // Vérifier si un client est trouvé (évitons les données manquantes)
+        //     if ($client) {
+        //         // Ajouter la dette et le client dans la liste
+        //         $dettesWithClients[] = [
+        //             'dette' => $dette,
+        //             'client' => $client
+        //         ];
+        //     } else {
+        //         // En cas de client manquant, on peut ajouter la dette seule (optionnel)
+        //         $dettesWithClients[] = [
+        //             'dette' => $dette,
+        //             'client' => null  // Ou un message d'erreur si vous voulez
+        //         ];
+        //     }
+
+        // }
+        // return $dettesWithClients;
 
     }
 
@@ -113,9 +151,6 @@ class DetteService
         return $this->detteRepo->findArchivedDebtById($id);
     }
 
-
-
-    //-------------------- PARTIE RESTAURATION DETTES ARCHIVÉES:
     // Restaurer une dette par ID
     public function restoreDetteById($idDette)
     {
@@ -156,7 +191,8 @@ class DetteService
         return ['success' => false, 'message' => "Aucune dette trouvée pour le client $clientId."];
     }
 
-    public function restoreDettesByDate($date){
+    public function restoreDettesByDate($date)
+    {
         // Récupérer les dettes dans MongoDB
         $dettes = $this->detteRepo->findDettesByDate($date);
 
@@ -176,53 +212,6 @@ class DetteService
 
     }
 
-
-
-
-    // Restaurer les dettes par date
-    // public function restoreDettesByDate($date)
-    // {
-    //     $dettes = $this->detteRepo->getDettesByDate($date);
-    //     foreach ($dettes as $dette) {
-    //         // Restaurer la dette dans la base de données locale
-    //         Dette::create([
-    //             'client_id' => $dette['client_id'],
-    //             'montant' => $dette['montant'],
-    //             'montant_paiement' => $dette['montant_paiement'],
-    //             'date' => $dette['date'],
-    //             // autres attributs
-    //         ]);
-    //     }
-    //     // Supprimer les dettes restaurées de MongoDB
-    //     $this->detteRepo->deleteDettesByDate($date);
-    // }
-
-
-    // // Restaurer une dette par id_dette
-    // public function restoreDetteById($idDette)
-    // {
-    //     return $this->detteRepo->getDetteById($idDette);
-
-    // }
-
-
-    // // Restaurer les dettes par client_id
-    // public function restoreDettesByClientId($clientId)
-    // {
-    //     $dettes = $this->detteRepo->getDettesByClientId($clientId);
-    //     foreach ($dettes as $dette) {
-    //         // Restaurer la dette dans la base de données locale
-    //         Dette::create([
-    //             'client_id' => $dette['client_id'],
-    //             'montant' => $dette['montant'],
-    //             'montant_paiement' => $dette['montant_paiement'],
-    //             'date' => $dette['date'],
-    //             // autres attributs
-    //         ]);
-    //     }
-    //     // Supprimer les dettes restaurées de MongoDB
-    //     $this->detteRepo->deleteDettesByClientId($clientId);
-    // }
 
 
 

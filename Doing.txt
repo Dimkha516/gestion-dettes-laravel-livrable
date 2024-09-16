@@ -362,17 +362,7 @@ AFTER JUMAH: TESTER LE MESSAGE SUR LE SERVICE QUI MARCHE:
 = App\Services\SmsService {#5180}
 
 
----------------------------TRAITEMENT MESSAGERIE RAPPEL DETTE--------------------
 
-1) Installation et configuration TWILIO et INFOBIP
-
-2) SmsServiceInterface
-
-3) TwilioService
-
-4) InfoBipService
-
-5) RappelDetteSmsJob ==> Lecture du fichier .env pour choisir le service à exécuter
 
 
  $user = Auth::user();
@@ -397,5 +387,119 @@ Lancer le worker en mode debug (voir les erreurs): php artisan queue:work --trie
 Lancer le planificateur manuellement (pour test) si QUEUE_CONNECTION=sync dans .env: php artisan schedule:run
 
 
+
+---------------------------TRAITEMENT MESSAGERIE RAPPEL DETTE--------------------
+
+1) Installation et configuration TWILIO et INFOBIP
+
+2) SmsServiceInterface
+
+3) TwilioService
+
+4) InfoBipService
+
+5) RappelDetteSmsJob ==> Lecture du fichier .env pour choisir le service à exécuter
+
+--------------------------------- ARCHIVAGE MONGO & FIREBASE:
+
+--- App\Services\ArchivageServiceInterface
+--- App\Services\FirebaseArchiveService
+--- App\Services\MongoArchiveService
+--- App\Services\ArchivageFactory
+--- App\Job\ArchivageDetteJob 
+
+---------------------------- LISTER LES DETTES ARCHIVÉES PAR MONGO ET FIRE:
+
+--- App\Repositories\DetteArchivageInterface.php
+--- App\Repositories\MongoDetteArchivageService.php
+--- App\Repositories\FirebaseDetteArchivageService.php
+--- App\Repositories\DetteFactory
+--- App\Services\DetteService
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------ARCHIVAGE MONGO FONCTIONNELLE:
+<?php
+
+namespace App\Jobs;
+
+use App\Models\Dette;
+use DB;
+use Kreait\Firebase\Factory;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+
+
+class ArchivageDetteJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct()
+    { 
+        //
+    }
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        
+        // Log::info('Bonjour');
+
+        //----------------------- CONNEXION MONGO_DB-----------
+        // Récupérer les dettes soldées (montant == paiement) à partir de MySQL
+        $dettesSoldees = DB::connection('mysql')->table('dettes')
+            ->whereColumn('montant', '=', 'montant_paiement')
+            ->get();
+
+        // Pour chaque dette, l'archiver dans MongoDB
+        foreach ($dettesSoldees as $dette) {
+            DB::connection('mongodb')->collection('archived_debts')->insert([
+                'dette_id' => $dette->id,
+                "client_id" => $dette->client_id,
+                'montant' => $dette->montant,
+                'montant_paiement' => $dette->montant_paiement,
+                'date' => $dette->created_at,
+                'archived_at' => now(),
+            ]);
+
+            // Supprimer la dette de MySQL après archivage
+            DB::connection('mysql')->table('dettes')->where('id', $dette->id)->delete();
+        }
+
+        Log::info('Dettes Soldées Du Jour Archivées avec succès !');
+    } 
+}
 
 

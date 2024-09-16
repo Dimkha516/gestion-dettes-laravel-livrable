@@ -219,9 +219,17 @@ Route::prefix('v1')->group(function () {
     Route::prefix('notifications')->group(function () {
 
         // ENVOYER UNE NOTIFICATION DETTE NON SOLDÉE À UN CLIENT:
-
         Route::middleware('auth:api')->get('/client/{id}', [NotificationController::class, 'notifyClient']);
 
+        // ENVOYER UNE NOTIFICATION DETTE NON SOLDÉE À UN PLUSIEURS CLIENTS:
+        Route::middleware('auth:api')->post('/client/all', [NotificationController::class, 'notifyAllClients']);
+        
+
+        // ENVOYER UNE NOTIFICATION PERSONNALISÉE DETTE NON SOLDÉE À PLUSIEURS CLIENTS:
+        Route::middleware('auth:api')->post('/client/message', [NotificationController::class, 'sendCustomNotification']);
+
+        //---------------- ROUTE POUR PERMETTRE AU CLIENT CONNECTÉ DE LISTER SES NOTIFICATIONS:
+        Route::middleware('auth:api')->get('/mesNotifs', [NotificationController::class, 'listNotifications']);
     });
 
 });

@@ -34,7 +34,7 @@ class Kernel extends ConsoleKernel
         // Exécute le job d'archivage des dettes soldées tous les jours à minuit
         // $schedule->job(new ArchivageDetteJob())->dailyAt('00:00');
 
-        
+
         $schedule->job(new ArchivageDetteJob())->everyMinute();
 
 
@@ -48,9 +48,13 @@ class Kernel extends ConsoleKernel
      * Register the commands for the application.
      */
     protected function commands(): void
-    { 
+    {
         $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
+
+    // protected $commands = [
+    //     \App\Console\Commands\UpdateOldDebtRequests::class,
+    // ];
 }

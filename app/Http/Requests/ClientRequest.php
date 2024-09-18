@@ -2,10 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Categorie;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ClientRequest extends FormRequest
-{   
+{
     // public function authorize()
     // {
     //     return true; // Autoriser toutes les requêtes (ajuster selon les besoins)
@@ -18,9 +19,11 @@ class ClientRequest extends FormRequest
                 'required',
                 'string',
                 'unique:clients,telephone',
-                'regex:/^((77|76|75|70|78)\d{3}\d{2}\d{2})|(33[8]\d{2}\d{2}\d{2})$/'
+                'regex:/^((77|76|75|70|78)\d{3}\d{2}\d{2})|(33[8]\d{2}\d{2}\d{2})$/',
+                // facultatif avec la valeur par défaut ajoutée
+                
             ],
-            'adresse' => 'nullable|string',        
+            'adresse' => 'nullable|string',
         ];
     }
 

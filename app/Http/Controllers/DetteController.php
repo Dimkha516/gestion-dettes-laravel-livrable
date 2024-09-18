@@ -54,7 +54,7 @@ class DetteController extends Controller
         }
         if (!in_array($user->role, ['admin', 'boutiquier'])) {
             return response()->json([
-                'message' => 'Autorisation rejettée. Seuls les admins ou boutiquiers peuvent ajouetr une dette.'
+                'message' => 'Autorisation rejettée. Seuls les admins ou boutiquiers peuvent ajouter une dette.'
             ], 403);
         }
 

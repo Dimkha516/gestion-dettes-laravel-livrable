@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        '/wane/v1/users/login' 
+        '/wane/v1/users/login',
+        '/wane/v1/demandes/add' 
     ];
 }

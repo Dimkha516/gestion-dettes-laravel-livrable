@@ -8,6 +8,7 @@ use App\Jobs\GenerateFidelityCard;
 use App\Jobs\ProcessClientCreation;
 use App\Jobs\UploadPhoto;
 use App\Jobs\UploadPhotoToCloudinary;
+use App\Models\Categorie;
 use App\Repositories\ClientRepository;
 use Cloudinary\Cloudinary;
 use Cloudinary\Uploader;
@@ -65,12 +66,28 @@ class ClientService
 
     public function createClient(array $data)
     {
-        return Client::create([
+
+        // Si la catégorie est fournie, utiliser celle-ci, sinon, définir la catégorie par défaut 'Bronze'
+        if (empty($data['categorie_id'])) {
+            $data['categorie_id'] = Categorie::where('libelle', 'Bronze')->value('id');
+        }
+
+        // Si la catégorie est Silver, le montant_max doit être défini, sinon on le laisse null
+        $categorieSilverId = Categorie::where('libelle', 'Silver')->value('id');
+        if ($data['categorie_id'] == $categorieSilverId && empty($data['montant_max'])) {
+            throw new \Exception('Le montant_max est requis pour la catégorie Silver.');
+            // return "Le montant_max est requis pour la catégorie Silver.";
+        }
+
+        return $this->clientRepo->createClient([
             'surname' => $data['surname'],
             'telephone' => $data['telephone'],
             'adresse' => $data['adresse'] ?? null,
-            'status' => 'actif',
+            'status' => $data['status'] ?? 'actif',
+            'categorie_id' => $data['categorie_id'], // toujours défini ici
+            'montant_max' => $data['montant_max'] ?? null,
         ]);
+
     }
 
 
@@ -106,7 +123,7 @@ class ClientService
             // Lier le client à l'utilisateur
             $this->clientRepo->updateClientWithUser($client, $user->id);
 
-            
+
 
             DB::commit();
 

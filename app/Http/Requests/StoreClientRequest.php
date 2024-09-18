@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Categorie;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreClientRequest extends FormRequest
@@ -27,8 +28,22 @@ class StoreClientRequest extends FormRequest
                 'required',
                 'string',
                 'unique:clients,telephone',
-                'regex:/^((77|76|75|70|78)\d{3}\d{2}\d{2})|(33[8]\d{2}\d{2}\d{2})$/'
+                'regex:/^((77|76|75|70|78)\d{3}\d{2}\d{2})|(33[8]\d{2}\d{2}\d{2})$/',
             ],
+            // 'categorie_id' => 'sometimes|exists:categories,id', // Si fourni, il doit exister dans la table categories
+            'categorie_id' => 'sometimes|exists:categories,id',
+            'montant_max' => [
+            'nullable',
+            'numeric',
+            'min:0',
+            function ($attribute, $value, $fail) {
+                $categorieSilverId = Categorie::where('libelle', 'Silver')->value('id');
+
+                if ($this->input('categorie_id') == $categorieSilverId && empty($value)) {
+                    $fail('Le montant_max est requis pour la catégorie Silver.');
+                }
+            },
+        ],
             'adresse' => 'nullable|string',
         ];
     }

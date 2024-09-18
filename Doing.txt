@@ -303,43 +303,11 @@ Ensuite créer un job qui fait une relance. Cette relance sera ratachée à une 
 6) Kernel
 
 
- 
-
-A faire à la maison:
---- INTÉGRER INFOBIP ET CONFIGURER LE BASCULEMENT DES SERVICES DE MESSAGERIE
---- 
-
 
 -------------------- RÉSOLUTION ERREUR PUSH ------------------------
  *** bfg --delete-files firebase_credentials.json
- *** git reflog expire --expire=now --all && git gc --prune=now --aggressive
+ *** git reflog expire --expire=now --all && git gc --prune=now --aggressive    
 
-
-
-
-------------------------Messagerie: TWILIO et INFOBIP---------------------
-------------------------Archivage: Mongo et Firebase-----------------------
-
-
-Session de rattrapage: 
-*** Afficher les dettes archivées
-*** Afficher les dettes archivées d'un client
-*** Filtrer par date et/ou client
-*** Restorer dette archivée
-
-
---- Afficher les détails d'une dette: Article, paiement....
-
-
----- Ajouter une table notification pour que à chaque fois qu'on envoi une notif au client qu'on l'enregistre aussi dans cette table.
---- Récupérer les notifs d'un client
---- Possibilité d'envoyer une notif à un seul client.
---- NOTIFICATION saisie
---- Le client connecté peut voir ses notifications.    
-
-
----- Ajouter une date échéance dans dette => Modifier endpoint ajout dette pour ajouter la date d'écheance
---- NOTIFICATION pour les clients dont la date d'écheance est dépassée
 
 
 AFTER JUMAH: TESTER LE MESSAGE SUR LE SERVICE QUI MARCHE:
@@ -410,13 +378,29 @@ Lancer le planificateur manuellement (pour test) si QUEUE_CONNECTION=sync dans .
 
 ---------------------------- LISTER LES DETTES ARCHIVÉES PAR MONGO ET FIRE:
 
---- App\Repositories\DetteArchivageInterface.php
+--- App\Repositories\
 --- App\Repositories\MongoDetteArchivageService.php
 --- App\Repositories\FirebaseDetteArchivageService.php
 --- App\Repositories\DetteFactory
 --- App\Services\DetteService
 
 
+---------------------------- DEMANDE DE DETTE CLIENT:
+
+--- App\Http\Requests\StoreDebtRequest => Validation données de la demande dette.
+
+--- App\Notifications\DebtRequestNotification => Le contenu de la notification. 
+
+--- App\Services\DebtRequestService => Gère l'authentification de l'utilisateur et traite les données de la demande.
+
+--- App\Http\Controllers\DebtRequestController => Enregistre la demande de dette et déclanche le job Notification
+
+--- App\Jobs\SendDebtRequestNotification =>  Envoie la notification aux boutiquiers 
+
+
+Custum Eloquent class
+Builder
+Cast
 
 
 

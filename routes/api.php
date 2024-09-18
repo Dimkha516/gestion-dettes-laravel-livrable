@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\DebtRequestController;
 use App\Http\Controllers\DetteController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaiementController;
@@ -223,13 +224,29 @@ Route::prefix('v1')->group(function () {
 
         // ENVOYER UNE NOTIFICATION DETTE NON SOLDÉE À UN PLUSIEURS CLIENTS:
         Route::middleware('auth:api')->post('/client/all', [NotificationController::class, 'notifyAllClients']);
-        
+
 
         // ENVOYER UNE NOTIFICATION PERSONNALISÉE DETTE NON SOLDÉE À PLUSIEURS CLIENTS:
         Route::middleware('auth:api')->post('/client/message', [NotificationController::class, 'sendCustomNotification']);
 
         //---------------- ROUTE POUR PERMETTRE AU CLIENT CONNECTÉ DE LISTER SES NOTIFICATIONS:
         Route::middleware('auth:api')->get('/mesNotifs', [NotificationController::class, 'listNotifications']);
+    });
+
+
+    //---------------------- DEMANDES / TRAITEMENTS DETTES
+    Route::prefix('demandes')->group(function () {
+        
+        // FAIRE UNE DEMANDE DE DETTE:
+        Route::post('/add', [DebtRequestController::class, 'store'])->middleware('auth:api');
+        // ->middleware('auth:api');
+        
+        // LISTER MES DEMANDES DE DETTE AVEC POSSIBILITÉ DE FILTRE:
+        Route::get('/', [DebtRequestController::class, 'listDebts'])->middleware('auth:api');
+
+        // LISTER TOUTES LES DEMANDES DE DETTES DESN CLIENTS EN TANT QUE BOUTIQUIER:
+        Route::get('/all', [DebtRequestController::class, 'allListDebts'])->middleware('auth:api');
+    
     });
 
 });

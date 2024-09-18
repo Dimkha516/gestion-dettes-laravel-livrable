@@ -326,6 +326,398 @@
                 }
             }
         },
+
+        "/wane/v1/dettes": {
+            "get": {
+                "summary": "Lister les dettes",
+                "description": "Voir toutes les dettes des clients",
+                "tags": ["Dettes"],
+                "responses": {
+                    "200": {
+                        "description": "Liste des dettes",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "400": {
+                        "description": "Erreur récupération des dettes' "
+                    }
+                }
+            }
+        },
+        "/wane/v1/dettes/solde": {
+            "get": {
+                "summary": "Filtrer les dettes par etat solde",
+                "description": "Liste les dettes par etat solde",
+                "tags": ["Dettes"],
+                "parameters": [
+                    {
+                        "name": "solde",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Les dettes en fonction de leur etat de solde"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des dettes filtrées par état solde.",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "400": {
+                        "description": "Paramètre de requête manquant ou invalide. saisir 'oui' ou 'non"
+                    }
+                }
+            }
+        },
+        "/wane/v1/dettes/{id}/articles": {
+            "get": {
+                "summary": "Liste les articles d'une dette",
+                "description": "Renvoie la liste des articles d'une dette",
+                "tags": ["Dettes"],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "description": "L'ID de la dette."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des article de la dette.",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Erreur récupération articles de la dette"
+                    }
+                }
+            }
+        },
+        "/wane/v1/dettes/paymentsList/{id}": {
+            "get": {
+                "summary": "Liste les paiements d'une dette",
+                "description": "Renvoie la liste des paiements d'une dette",
+                "tags": ["Dettes"],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "description": "L'ID de la dette."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des paiements de la dette.",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Erreur récupération paiements de la dette"
+                    }
+                }
+            }
+        },
+        "/wane/v1/dettes/archive": {
+            "get": {
+                "summary": "Lister les dettes archivées",
+                "description": "Voir toutes les dettes archivées",
+                "tags": ["Dettes"],
+                "responses": {
+                    "200": {
+                        "description": "Liste des dettes archivées",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "400": {
+                        "description": "Erreur récupération des dettes archivées' "
+                    }
+                }
+            }
+        },
+        "/wane/v1/dettes/clients/{id}/dettes": {
+            "get": {
+                "summary": "Récupère les dettes archivées d'un client",
+                "description": "Renvoie les dettes archivées d'un client.",
+                "tags": ["Dettes"],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "description": "L'ID du client."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des dettes archivées du client",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Erreur récupération des dettes archivées du client"
+                    }
+                }
+            }
+        },
+        "/wane/v1/dettes/restaure/dette/{id}": {
+            "get": {
+                "summary": "Restore une dette en entrant son ID",
+                "description": "Restoration dette",
+                "tags": ["Dettes"],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "description": "ID Dette"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Restoration dette réussie !",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Erreur Restoration dette"
+                    }
+                }
+            }
+        },
+
+        "/wane/v1/dettes/client/{id}": {
+            "get": {
+                "summary": "Restorer les dettes d'un client",
+                "description": "Restoration dette client unique",
+                "tags": ["Dettes"],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "description": "ID Client"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Restoration dette réussie !",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Erreur Restoration dette"
+                    }
+                }
+            }
+        },
+
+        "/wane/v1/dettes/restaure/{date}": {
+            "get": {
+                "summary": "Restorer les dettes d'une date",
+                "description": "Restoration dette  d'une date",
+                "tags": ["Dettes"],
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "description": "La date"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Restoration dette réussie !",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Erreur Restoration dette"
+                    }
+                }
+            }
+        },
+
+        "/wane/v1/notifications/client/{id}": {
+            "get": {
+                "summary": "Envoyer une message de notification de rappel ",
+                "description": "Envoi message de rappel",
+                "tags": ["Notifications"],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        },
+                        "description": "Message notification pour un client"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message envoyé avec succès",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Erreur Envoi message"
+                    }
+                }
+            }
+        },
+
+        "/wane/v1/notifications/mesNotifs": {
+            "get": {
+                "summary": "Lister mes notifications par status(lues / non lues)",
+                "description": "Liste les notifications de l'utilisateur connecté",
+                "tags": ["Notifications"],
+                "parameters": [
+                    {
+                        "name": "lu",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Liste des notifications de l'utilisateur connecté"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des notifications",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "400": {
+                        "description": "Paramètre de requête manquant ou invalide. saisir 'oui' ou  'non' "
+                    }
+                }
+            }
+        },
+
+        "/wane/v1/demandes": {
+            "get": {
+                "summary": "Lister les demandes dette dun  client connecté",
+                "description": "Voir toutes les demandes de dettes du client connecté",
+                "tags": ["Demandes"],
+                "responses": {
+                    "200": {
+                        "description": "Liste des demandes dettes",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "400": {
+                        "description": "Erreur récupération des demandes de dettes dettes' "
+                    }
+                }
+            }
+        },
+        "/wane/v1/demandes/all": {
+            "get": {
+                "summary": "Lister toutes les demandes de dette (role boutiquier)",
+                "description": "Voir toutes les demandes de dettes.",
+                "tags": ["Demandes"],
+                "responses": {
+                    "200": {
+                        "description": "Liste des demandes dettes",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "400": {
+                        "description": "Erreur récupération des demandes de dettes dettes' "
+                    }
+                }
+            }
+        },
+        "/wane/v1/demandes/add": {
+            "post": {
+                "summary": "Faire une demande de dette",
+                "description": "Envoyer une demande de dette en tant que client",
+                "tags": ["Demandes"],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "articles": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "format": "int64"
+                                                },
+                                                "quantite": {
+                                                    "type": "integer",
+                                                    "format": "int32"
+                                                }
+                                            },
+                                            "required": ["id", "quantite"]
+                                        }
+                                    }
+                                },
+                                "required": ["articles"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Demande dette Envoyée avec succès."
+                    },
+                    "400": {
+                        "description": "Erreur Demande de dette"
+                    }
+                }
+            }
+        },
+
         "/wane/v1/users/login": {
             "post": {
                 "tags": ["Authentication"],
